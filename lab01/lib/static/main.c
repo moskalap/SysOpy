@@ -37,13 +37,21 @@ char* rand_string_alloc(size_t size)
 
 int main(){
     PhoneBook * phoneBook = createPB('l');
+
     addContactToPhoneBook(phoneBook,"przemek","moskala", "mail", "123123123","12-23-2222","adr");
 
+    for(int i =0 ;i <25; i++)
+        addContactToPhoneBook(phoneBook,rand_string_alloc(rand()%10+3),rand_string_alloc(rand()%1+3),rand_string_alloc(rand()%10+3),rand_string_alloc(9),rand_string_alloc(10),rand_string_alloc(rand()%10+3));
+
+
+    //printContact(searchContact(phoneBook, "przemek", "moskala"));
 
     for(int i =0 ;i <25; i++)
         addContactToPhoneBook(phoneBook,rand_string_alloc(rand()%10+3),rand_string_alloc(rand()%1+3),rand_string_alloc(rand()%10+3),rand_string_alloc(9),rand_string_alloc(10),rand_string_alloc(rand()%10+3));
     printContact(searchContact(phoneBook, "przemek", "moskala"));
-    displayPhoneBook(phoneBook);
+    deleteContact(phoneBook, "przemek", "moskala");
+    printContact(searchContact(phoneBook, "przemek", "moskala"));
+    //displayPhoneBook(phoneBook);
 
 
 

@@ -55,7 +55,7 @@ void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char
 Contact* searchContact(PhoneBook* phoneBook, char * name, char* surname);
 void printContact(Contact * c);
 void displayPhoneBook(PhoneBook * phoneBook);
-void deleteConatact(PhoneBook * phoneBook, char * name, char * surname);
+void deleteContact(PhoneBook * phoneBook, char * name, char * surname);
 void deletePhoneBook(PhoneBook * phoneBook);
 void sortPhoneBook(PhoneBook * phoneBook, char option);
 

@@ -109,7 +109,7 @@ void deleteContactInList(char * name, char * surname, LinkedList *list){
 
     }
 
-
+    free(node->contact);
     free(node);
 }
 
@@ -197,9 +197,9 @@ void displayPhoneBook(PhoneBook * phoneBook){
         }
     }
 }
-void deleteConatact(PhoneBook * phoneBook, char * name, char * surname){
+void deleteContact(PhoneBook * phoneBook, char * name, char * surname){
     if(phoneBook->basedon == 'l'){
-
+        deleteContactInList(name, surname, phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
 
