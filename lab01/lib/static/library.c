@@ -112,9 +112,80 @@ void deleteContactInList(char * name, char * surname, LinkedList *list){
     free(node->contact);
     free(node);
 }
+void deleteList(LinkedList * list){
+    Node * tmp = list->head;
+    while(tmp!=NULL){
+        free(tmp->contact);
+        tmp=tmp->next;
+        if( tmp && tmp->previous!= NULL) free(tmp->previous);
+    }
+    free(list);
+}
+void swap(Node * a, Node * b){
+    Contact *t = a->contact;
+    a->contact=b->contact;
+    b->contact=t;
+}
+int compareContacts(Contact *a, Contact *b) {
+    int res = strcmp(a->surname, b->surname);
+    if (res == 0) {
 
+        return strcmp(a->name, b->name);
+    }
+    else return res;
 
+}
+Node *lastNode(Node *root)
+{
+    while (root && root->next)
+        root = root->next;
+    return root;
+}
+/* Considers last element as pivot, places the pivot element at its
+   correct position in sorted array, and places all smaller (smaller than
+   pivot) to left of pivot and all greater elements to right of pivot */
+Node* partition(Node *l, Node *h)
+{
+    // set pivot as h element
+    char *x  = h->contact->surname;
 
+    // similar to i = l-1 for array implementation
+    Node *i = l->previous;
+
+    // Similar to "for (int j = l; j <= h- 1; j++)"
+    for (Node *j = l; j != h; j = j->next)
+    {
+        if (compareContacts(j->contact,h->contact) <= 0)
+        {
+            // Similar to i++ for array
+            i = (i == NULL)? l : i->next;
+
+            swap(i->contact, j->contact);
+        }
+    }
+    i = (i == NULL)? l : i->next; // Similar to i++
+    swap(i->contact, h->contact);
+    return i;
+}
+/* A recursive implementation of quicksort for linked list */
+void _quickSort(Node* l, Node *h)
+{
+    if (h != NULL && l != h && l != h->next)
+    {
+        Node *p = partition(l, h);
+        _quickSort(l, p->previous);
+        _quickSort(p->next, h);
+    }
+}
+// The main function to sort a linked list. It mainly calls _quickSort()
+void quickSort(Node *head)
+{
+    // Find last node
+    Node *h = lastNode(head);
+
+    // Call the recursive QuickSort
+    _quickSort(head, h);
+}
 
 //TREE:
         BinaryTree * createTree(){
@@ -210,7 +281,8 @@ void deleteContact(PhoneBook * phoneBook, char * name, char * surname){
 }
 void deletePhoneBook(PhoneBook * phoneBook){
     if(phoneBook->basedon == 'l'){
-
+        deleteList(phoneBook->list);
+        free(phoneBook);
     }else{
         if (phoneBook ->basedon =='t'){
 
@@ -221,7 +293,17 @@ void deletePhoneBook(PhoneBook * phoneBook){
 }
 void sortPhoneBook(PhoneBook * phoneBook, char option){
     if(phoneBook->basedon == 'l'){
-
+        switch(option){
+            case 'n':
+                quickSort(phoneBook->list->head);
+                break;
+            case 'p':
+                break;
+            case 'e':
+                break;
+            case 'd':
+                break;
+        }
     }else{
         if (phoneBook ->basedon =='t'){
 
