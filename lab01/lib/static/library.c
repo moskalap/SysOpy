@@ -122,9 +122,9 @@ void deleteList(LinkedList * list){
     free(list);
 }
 void swap(Node * a, Node * b){
-    Contact *t = a->contact;
+    Contact *t = a ->contact;
     a->contact=b->contact;
-    b->contact=t;
+   b->contact=t;
 }
 int compareContacts(Contact *a, Contact *b) {
     int res = strcmp(a->surname, b->surname);
@@ -144,47 +144,74 @@ Node *lastNode(Node *root)
 /* Considers last element as pivot, places the pivot element at its
    correct position in sorted array, and places all smaller (smaller than
    pivot) to left of pivot and all greater elements to right of pivot */
-Node* partition(Node *l, Node *h)
+char *getPivot(Node* h , char option){
+    switch(option){
+        case 'n':
+            return h->contact->surname;
+
+        case 'p':
+            return h->contact->phone;
+
+        case 'e':
+            return h->contact->email;
+
+        case 'd':
+            return h->contact->date;
+
+    }
+}
+
+int compareby(Contact * a, Contact * b, char option){
+    switch(option){
+        case 'n':
+             return   strcmp(a->surname, b->surname);
+
+        case 'p':
+         printf(a->phone);
+            printf("\n");
+            return strcmp(a->phone, b->phone);
+
+        case 'e':
+            return strcmp(a->email, b->email);
+
+        case 'd':
+            return strcmp(a->date, b->date);
+
+    }
+}
+Node* partition(Node *l, Node *h, char option)
 {
-    // set pivot as h element
-    char *x  = h->contact->surname;
+    //char *x  = h->contact->surname;
+    char *x = getPivot(h, option);
 
-    // similar to i = l-1 for array implementation
+
     Node *i = l->previous;
+    for (Node *j = l; j != h; j = j->next){
+        int f=compareby(j->contact, h->contact,option);
+     char * v =j->contact->email;
+     char * u =h->contact->email;
 
-    // Similar to "for (int j = l; j <= h- 1; j++)"
-    for (Node *j = l; j != h; j = j->next)
-    {
-        if (compareContacts(j->contact,h->contact) <= 0)
+
+        if(compareby(j->contact, h->contact,option) <= 0)
         {
-            // Similar to i++ for array
             i = (i == NULL)? l : i->next;
-
-            swap(i->contact, j->contact);
+            swap(i, j);
         }
     }
     i = (i == NULL)? l : i->next; // Similar to i++
-    swap(i->contact, h->contact);
+    swap(i, h);
     return i;
 }
-/* A recursive implementation of quicksort for linked list */
-void _quickSort(Node* l, Node *h)
-{
-    if (h != NULL && l != h && l != h->next)
-    {
-        Node *p = partition(l, h);
-        _quickSort(l, p->previous);
-        _quickSort(p->next, h);
+void _quickSort(Node* l, Node *h, char option){
+    if (h != NULL && l != h && l != h->next){
+        Node *p = partition(l, h,option);
+        _quickSort(l, p->previous, option);
+        _quickSort(p->next, h,option);
     }
 }
-// The main function to sort a linked list. It mainly calls _quickSort()
-void quickSort(Node *head)
-{
-    // Find last node
+void quickSort(Node *head, char option){
     Node *h = lastNode(head);
-
-    // Call the recursive QuickSort
-    _quickSort(head, h);
+    _quickSort(head, h, option);
 }
 
 //TREE:
@@ -362,20 +389,19 @@ void deletePhoneBook(PhoneBook * phoneBook){
 }
 void sortPhoneBook(PhoneBook * phoneBook, char option){
     if(phoneBook->basedon == 'l'){
-        switch(option){
-            case 'n':
-                quickSort(phoneBook->list->head);
-                break;
-            case 'p':
-                break;
-            case 'e':
-                break;
-            case 'd':
-                break;
-        }
+       quickSort(phoneBook->list->head, option);
     }else{
         if (phoneBook ->basedon =='t'){
-
+            switch(option){
+                case 'n':
+                    break;
+                case 'p':
+                    break;
+                case 'e':
+                    break;
+                case 'd':
+                    break;
+            }
         }else{
             printf("err");
         }

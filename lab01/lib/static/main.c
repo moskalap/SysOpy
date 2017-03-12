@@ -30,22 +30,22 @@ char* rand_string_alloc(size_t size)
 
 void test_list(){
     PhoneBook * phoneBook = createPB('l');
+    addContactToPhoneBook(phoneBook,"przemek2","moskala2", "mai2", "123123122","12-23-2222","adr2");
     addContactToPhoneBook(phoneBook,"przemek","moskala", "mail", "123123123","12-23-2222","adr");
+    addContactToPhoneBook(phoneBook,"przemek1","moskala1", "mai12", "123123121","12-23-2221","adr1");
     for(int i =0 ;i <25; i++)
         addContactToPhoneBook(phoneBook,rand_string_alloc(rand()%10+3),rand_string_alloc(rand()%1+3),rand_string_alloc(rand()%10+3),rand_string_alloc(9),rand_string_alloc(10),rand_string_alloc(rand()%10+3));
 
 
-    //printContact(searchContact(phoneBook, "przemek", "moskala"));
-
-    for(int i =0 ;i <25; i++)
-        addContactToPhoneBook(phoneBook,rand_string_alloc(rand()%10+3),rand_string_alloc(rand()%1+3),rand_string_alloc(rand()%10+3),rand_string_alloc(9),rand_string_alloc(10),rand_string_alloc(rand()%10+3));
     // printContact(searchContact(phoneBook, "przemek", "moskala"));
-    deleteContact(phoneBook, "przemek", "moskala");
-    printContact(searchContact(phoneBook, "przemek", "moskala"));
+  //  deleteContact(phoneBook, "przemek", "moskala");
+  //  printContact(searchContact(phoneBook, "przemek", "moskala"));
     //deletePhoneBook(phoneBook);
-    sortPhoneBook(phoneBook, 'n');
+ sortPhoneBook(phoneBook, 'n');
     displayPhoneBook(phoneBook);
-
+    sortPhoneBook(phoneBook, 'p');
+    printf("__________-");
+    displayPhoneBook(phoneBook);
 }
 
 
@@ -70,7 +70,7 @@ void test_tree(){
 
 
 int main(){
-    test_tree();
+    test_list();
 
 
 }

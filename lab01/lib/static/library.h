@@ -34,20 +34,6 @@ typedef struct PhoneBook {
     struct BinaryTree *tree;
 } PhoneBook;
 //----
-//-----------------PRIVATE;
-//sel
-Contact *createContact(char* name, char* surname, char* email, char *phone, char* date, char* address);
-
-//LIST
-LinkedList * createList();
-void addContactToList(LinkedList *list, Contact * contact);
-void printList(LinkedList *list);
-Contact *searchContactinList(char * name, char * surname, LinkedList *list);
-void deleteContactInList(char * name, char * surname, LinkedList *list);
-
-//TREE:
-        BinaryTree * createTree();
-//---------------------/private;
 
 //public
 PhoneBook * createPB(char  basedon); //create a phone  book based on l - list, t - tree
