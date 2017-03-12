@@ -221,17 +221,17 @@ BinaryTree * createTree(){
     return tree;
 
 }
-void addTreeNode(TreeNode *root, Contact *contact){
+void addTreeNode(TreeNode *root, Contact *contact, char option){
     if(root->contact==NULL){
         root->contact=contact;
         root->leftChild=malloc(sizeof(TreeNode));
         root->rightChild=malloc(sizeof(TreeNode));
     }
     else{
-        if(compareContacts(root->contact, contact)>=0)
-            addTreeNode(root->leftChild,contact);
+        if(compareby(root->contact, contact, option)>=0)
+            addTreeNode(root->leftChild,contact, option);
         else
-            addTreeNode(root->rightChild,contact);
+            addTreeNode(root->rightChild,contact, option);
     }
 }
 void addTreeByDate(TreeNode *root, Contact *contact){
@@ -279,18 +279,19 @@ TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
     } else return NULL;
 
 }
-void rebulidTreebyDate(BinaryTree *tree, TreeNode * root, BinaryTree *new){
-    if(root!=NULL && root->contact!=NULL){
 
-        rebulidTreebyDate(tree, root->leftChild,new);
-        addTreeNode(new->root, deleteTNode(root));
+BinaryTree * rebuildTreeby(TreeNode* binaryTree, char option, BinaryTree * new){
+   if(binaryTree && binaryTree->contact) {
 
-        rebulidTreebyDate(tree, root->rightChild,new);
-        //if(new->root != NULL )  printContact(deleteTNode(root));
+       Contact *contact = binaryTree->contact;
+       rebuildTreeby(binaryTree->leftChild,option, new);
+       rebuildTreeby(binaryTree->rightChild,option, new);
+       addTreeNode(new->root,contact,option);
 
-    }
+   }
+    return new;
 
-};
+}
 
 
 
@@ -322,7 +323,7 @@ void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char
             addContactToList(phoneBook->list,contact);
     }else{
         if (phoneBook ->basedon =='t'){
-            addTreeNode(phoneBook->tree->root, contact);
+            addTreeNode(phoneBook->tree->root, contact, 'n');
         }else{
             printf("err::can not add contact ");
         }
@@ -392,16 +393,9 @@ void sortPhoneBook(PhoneBook * phoneBook, char option){
        quickSort(phoneBook->list->head, option);
     }else{
         if (phoneBook ->basedon =='t'){
-            switch(option){
-                case 'n':
-                    break;
-                case 'p':
-                    break;
-                case 'e':
-                    break;
-                case 'd':
-                    break;
-            }
+            BinaryTree * new=createTree();
+        phoneBook->tree=rebuildTreeby(phoneBook->tree->root, option, new);
+
         }else{
             printf("err");
         }
