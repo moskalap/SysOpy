@@ -54,6 +54,7 @@ PhoneBook * createPB(char  basedon); //create a phone  book based on l - list, t
 void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char* email, char *phone, char* date, char* address);
 Contact* searchContact(PhoneBook* phoneBook, char * name, char* surname);
 void printContact(Contact * c);
+void displayPhoneBook(PhoneBook * phoneBook);
 void deleteConatact(PhoneBook * phoneBook, char * name, char * surname);
 void deletePhoneBook(PhoneBook * phoneBook);
 void sortPhoneBook(PhoneBook * phoneBook, char option);
