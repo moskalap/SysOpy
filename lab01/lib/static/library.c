@@ -188,13 +188,84 @@ void quickSort(Node *head)
 }
 
 //TREE:
-        BinaryTree * createTree(){
+BinaryTree * createTree(){
     BinaryTree *tree=malloc(sizeof(BinaryTree));
     tree->root=malloc(sizeof(TreeNode));
     return tree;
 
 }
+void addTreeNode(TreeNode *root, Contact *contact){
+    if(root->contact==NULL){
+        root->contact=contact;
+        root->leftChild=malloc(sizeof(TreeNode));
+        root->rightChild=malloc(sizeof(TreeNode));
+    }
+    else{
+        if(compareContacts(root->contact, contact)>=0)
+            addTreeNode(root->leftChild,contact);
+        else
+            addTreeNode(root->rightChild,contact);
+    }
+}
+void addTreeByDate(TreeNode *root, Contact *contact){
+    if(root->contact==NULL){
+        printf("s");
+        root->contact=contact;
+        root->leftChild=malloc(sizeof(TreeNode));
+        root->rightChild=malloc(sizeof(TreeNode));
 
+
+
+
+    }
+    else{
+        if(strcmp(root->contact->date, contact->date)>=0)
+            addTreeByDate(root->leftChild,contact);
+        else
+            addTreeByDate(root->rightChild,contact);
+
+    }
+}
+Contact * deleteTNode(TreeNode * t){
+    Contact * c= t->contact;
+    free(t);
+    return c;
+}
+void printTree(TreeNode* root){
+    if(root!=NULL && root->contact!=NULL){
+        printTree(root->leftChild);
+        printContact(root->contact);
+        printTree(root->rightChild);
+    }
+}
+TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
+
+    if (root->contact!=NULL){
+
+        printf(root->contact->surname);
+        if (strcmp(root->contact->surname, surname) == 0 && strcmp(root->contact->name, name) == 0) {
+
+
+            return root;
+        }
+        if(strcmp(root->contact->surname, surname)>0 || (strcmp(root->contact->surname, surname)==0 && strcmp(root->contact->name, name)>0))
+            return searchTreeNode(name, surname, root->leftChild);
+        if(strcmp(root->contact->surname, surname)<0) return searchTreeNode(name, surname, root->rightChild);
+    } else return NULL;
+
+}
+void rebulidTreebyDate(BinaryTree *tree, TreeNode * root, BinaryTree *new){
+    if(root!=NULL && root->contact!=NULL){
+
+        rebulidTreebyDate(tree, root->leftChild,new);
+        addTreeNode(new->root, deleteTNode(root));
+
+        rebulidTreebyDate(tree, root->rightChild,new);
+        //if(new->root != NULL )  printContact(deleteTNode(root));
+
+    }
+
+};
 
 
 
@@ -214,7 +285,7 @@ PhoneBook * createPB(char  basedon){
     if(basedon == 't'){
         PhoneBook * phoneBook =malloc(sizeof(PhoneBook));
         phoneBook ->basedon = 't';
-        phoneBook->list=createTree();
+        phoneBook->tree=createTree();
         return phoneBook;
 
     }
@@ -226,9 +297,9 @@ void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char
             addContactToList(phoneBook->list,contact);
     }else{
         if (phoneBook ->basedon =='t'){
-
+            addTreeNode(phoneBook->tree->root, contact);
         }else{
-            printf("err");
+            printf("err::can not add contact ");
         }
     }
 }
@@ -237,9 +308,9 @@ Contact* searchContact(PhoneBook* phoneBook, char * name, char* surname){
          return searchContactinList(name,surname,phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
-
+            searchTreeNode(name,surname, phoneBook->tree->root);
         }else{
-            printf("err");
+            printf("Contact not in list!");
         }
     }
     return NULL;
@@ -262,7 +333,7 @@ void displayPhoneBook(PhoneBook * phoneBook){
         printList(phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
-
+            printTree(phoneBook->tree->root);
         }else{
             printf("err");
         }
@@ -285,7 +356,7 @@ void deletePhoneBook(PhoneBook * phoneBook){
         free(phoneBook);
     }else{
         if (phoneBook ->basedon =='t'){
-
+            printTree(phoneBook->tree->root);
         }else{
             printf("err");
         }
