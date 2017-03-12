@@ -42,7 +42,7 @@ Contact *createContact(char* name, char* surname, char* email, char *phone, char
 LinkedList * createList();
 void addContactToList(LinkedList *list, Contact * contact);
 void printList(LinkedList *list);
-Contact *searchContact(char * name, char * surname, LinkedList *list);
+Contact *searchContactinList(char * name, char * surname, LinkedList *list);
 void deleteContactInList(char * name, char * surname, LinkedList *list);
 
 //TREE:

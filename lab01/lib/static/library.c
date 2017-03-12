@@ -80,7 +80,7 @@ Node *searchNodeinList(char* name, char * surname ,LinkedList *list){
     return NULL;
 
 }
-Contact *searchContact(char * name, char * surname, LinkedList *list){
+Contact *searchContactinList(char * name, char * surname, LinkedList *list){
     Node* res=searchNodeinList(name,surname,list);
     if(res== NULL) return NULL;
     else
@@ -136,13 +136,13 @@ void deleteContactInList(char * name, char * surname, LinkedList *list){
 PhoneBook * createPB(char  basedon){
     if(basedon == 'l'){
         PhoneBook * phoneBook =malloc(sizeof(PhoneBook));
-        phoneBook ->basedon = "l";
+        phoneBook ->basedon = 'l';
         phoneBook->list=createList();
         return phoneBook;
     }
     if(basedon == 't'){
         PhoneBook * phoneBook =malloc(sizeof(PhoneBook));
-        phoneBook ->basedon = "t";
+        phoneBook ->basedon = 't';
         phoneBook->list=createTree();
         return phoneBook;
 
@@ -152,7 +152,7 @@ PhoneBook * createPB(char  basedon){
 void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char* email, char *phone, char* date, char* address){
     Contact* contact = createContact(name, surname,email,phone,date,address);
     if(phoneBook->basedon == 'l'){
-
+            addContactToList(phoneBook->list,contact);
     }else{
         if (phoneBook ->basedon =='t'){
 
@@ -163,7 +163,7 @@ void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char
 }
 Contact* searchContact(PhoneBook* phoneBook, char * name, char* surname){
     if(phoneBook->basedon == 'l'){
-
+         return searchContactinList(name,surname,phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
 
@@ -171,9 +171,31 @@ Contact* searchContact(PhoneBook* phoneBook, char * name, char* surname){
             printf("err");
         }
     }
+    return NULL;
 }
-void displayContact(Contact * contact){
+void displayContact(Contact * c){
+    if (c==NULL) {
+        printf("Contact doesn't exist!");
+        return;
+    }
+    printf("\n(surname: %s, ",c->surname);
+    printf("name: %s,",c->name);
+    printf("e-mail: %s, ",c->email);
+    printf("phone: %s, ",c->phone);
+    printf("birth date: %s, ",c->date);
+    printf("address: %s)",c->address);
 
+}
+void displayPhoneBook(PhoneBook * phoneBook){
+    if(phoneBook->basedon == 'l'){
+        printList(phoneBook->list);
+    }else{
+        if (phoneBook ->basedon =='t'){
+
+        }else{
+            printf("err");
+        }
+    }
 }
 void deleteConatact(PhoneBook * phoneBook, char * name, char * surname){
     if(phoneBook->basedon == 'l'){
@@ -208,3 +230,4 @@ void sortPhoneBook(PhoneBook * phoneBook, char option){
         }
     }
 }
+
