@@ -244,8 +244,6 @@ TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
 
         printf(root->contact->surname);
         if (strcmp(root->contact->surname, surname) == 0 && strcmp(root->contact->name, name) == 0) {
-
-
             return root;
         }
         if(strcmp(root->contact->surname, surname)>0 || (strcmp(root->contact->surname, surname)==0 && strcmp(root->contact->name, name)>0))
@@ -308,7 +306,7 @@ Contact* searchContact(PhoneBook* phoneBook, char * name, char* surname){
          return searchContactinList(name,surname,phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
-            searchTreeNode(name,surname, phoneBook->tree->root);
+           return searchTreeNode(name,surname, phoneBook->tree->root)->contact;
         }else{
             printf("Contact not in list!");
         }
