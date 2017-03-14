@@ -229,6 +229,14 @@ BinaryTree * createTree(){
     return tree;
 
 }
+TreeNode* getrightMostChild(TreeNode * n ){
+    if (n->rightChild) return getrightMostChild(n->rightChild);
+                return n;
+}
+TreeNode* getleftMostChild(TreeNode * n ){
+    if (n->leftChild) return getrightMostChild(n->leftChild);
+                return n;
+}
 void addTreeNode(TreeNode *root, Contact *contact, char option){
     if(root->contact==NULL){
         root->contact=contact;
@@ -236,7 +244,7 @@ void addTreeNode(TreeNode *root, Contact *contact, char option){
         root->rightChild=malloc(sizeof(TreeNode));
     }
     else{
-        if(compareby(root->contact, contact, option)>=0)
+        if(root && root->contact && compareby(root->contact, contact, option)>=0)
             addTreeNode(root->leftChild,contact, option);
         else
             addTreeNode(root->rightChild,contact, option);
@@ -275,14 +283,25 @@ void prescribeSubTree(TreeNode * root, BinaryTree * binaryTree){
     }
 
 }
+void detachfromparent(TreeNode * child, TreeNode * tree){
+ if(tree) {
+     if (tree->leftChild == child) tree->leftChild = NULL;
+     if (tree->rightChild == child) tree->rightChild = NULL;
+     detachfromparent(child, tree->rightChild);
+     detachfromparent(child, tree->leftChild);
+ }
+
+
+}
 Contact * deleteTNode(TreeNode * t, BinaryTree * tree){
     if(t){
         if(t->contact) deleteContactStruct(t->contact);
         TreeNode * l= t->leftChild;
         TreeNode * r =t->rightChild;
+        detachfromparent(t, tree->root);
         free(t);
-        prescribeSubTree(l, tree);
-        prescribeSubTree(r, tree);
+        getrightMostChild(tree->root)->rightChild=r;
+        getleftMostChild(tree->root)->leftChild=l;
 
     }
 
@@ -407,7 +426,8 @@ void deleteContact(PhoneBook * phoneBook, char * name, char * surname){
         deleteContactInList(name, surname, phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
-            deleteTNode(phoneBook->tree->root, phoneBook->tree);
+            Node * n = searchTreeNode(name, surname, phoneBook->tree->root);
+            deleteTNode(n, phoneBook->tree);
 
         }else{
             printf("err");
