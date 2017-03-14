@@ -1,4 +1,4 @@
-#include "library.h"
+#include "addressbook.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -170,6 +170,8 @@ char *getPivot(Node* h , char option){
 
         case 'd':
             return h->contact->date;
+        default:
+            return NULL;
 
     }
 }
@@ -189,6 +191,8 @@ int compareby(Contact * a, Contact * b, char option){
 
         case 'd':
             return strcmp(a->date, b->date);
+        default:
+            return 0;
 
     }
 }
@@ -322,7 +326,6 @@ TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
 
     if (root->contact!=NULL){
 
-        printf(root->contact->surname);
         if (strcmp(root->contact->surname, surname) == 0 && strcmp(root->contact->name, name) == 0) {
             return root;
         }
@@ -330,6 +333,7 @@ TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
             return searchTreeNode(name, surname, root->leftChild);
         if(strcmp(root->contact->surname, surname)<0) return searchTreeNode(name, surname, root->rightChild);
     }
+    return NULL;
 
 }
 
@@ -429,7 +433,7 @@ void deleteContact(PhoneBook * phoneBook, char * name, char * surname){
         deleteContactInList(name, surname, phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
-            Node * n = searchTreeNode(name, surname, phoneBook->tree->root);
+            TreeNode * n = searchTreeNode(name, surname, phoneBook->tree->root);
             deleteTNode(n, phoneBook->tree);
 
         }else{

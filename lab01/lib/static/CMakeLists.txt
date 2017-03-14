@@ -3,5 +3,5 @@ project(static)
 
 set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES library.c library.h)
+set(SOURCE_FILES addressbook.c addressbook.h)
 add_library(static ${SOURCE_FILES})

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "library.h"
-#include "library.c"
+#include "addressbook.h"
+#include "addressbook.c"
 
 
 static char *rand_string(char *str, size_t size)
@@ -71,7 +71,7 @@ void test_tree(){
     deleteContact(phoneBook, "przemek", "moskala");
     printf("\ndeleted");
     displayPhoneBook(phoneBook);
-//  deletePhoneBook(phoneBook);
+ deletePhoneBook(phoneBook);
 
 }
 
@@ -79,7 +79,7 @@ void test_tree(){
 
 
 int main(){
-    test_list();
+    test_tree();
 
 
 }
