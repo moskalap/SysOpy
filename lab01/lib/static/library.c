@@ -1,6 +1,8 @@
 #include "library.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 Contact *createContact(char* name, char* surname, char* email, char *phone, char* date, char* address) {
@@ -35,12 +37,12 @@ void printContact(Contact * c){
 }
 //LIST:
 LinkedList * createList(){
-        LinkedList *list=malloc(sizeof(LinkedList));
-        list->head=NULL;
-        list->tail=NULL;
-        return list;
+    LinkedList *list=malloc(sizeof(LinkedList));
+    list->head=NULL;
+    list->tail=NULL;
+    return list;
 
-    }
+}
 void addContactToList(LinkedList * list, Contact *contact){
     Node * node = malloc(sizeof(Node));
     node->contact=contact;
@@ -99,7 +101,7 @@ void deleteContactInList(char * name, char * surname, LinkedList *list){
         done=1;
     }
     if (list->tail == node) {
-        list->tail == node->previous;
+        list->tail = node->previous;
         if(node->previous!= NULL);
         list->tail->next = NULL;
         done=1;
@@ -135,7 +137,7 @@ void deleteContactStruct(Contact * contact){
 void swap(Node * a, Node * b){
     Contact *t = a ->contact;
     a->contact=b->contact;
-   b->contact=t;
+    b->contact=t;
 }
 int compareContacts(Contact *a, Contact *b) {
     int res = strcmp(a->surname, b->surname);
@@ -175,10 +177,10 @@ char *getPivot(Node* h , char option){
 int compareby(Contact * a, Contact * b, char option){
     switch(option){
         case 'n':
-             return   strcmp(a->surname, b->surname);
+            return   strcmp(a->surname, b->surname);
 
         case 'p':
-         printf(a->phone);
+
             printf("\n");
             return strcmp(a->phone, b->phone);
 
@@ -193,14 +195,12 @@ int compareby(Contact * a, Contact * b, char option){
 Node* partition(Node *l, Node *h, char option)
 {
     //char *x  = h->contact->surname;
-    char *x = getPivot(h, option);
+    // char *x = getPivot(h, option);
 
 
     Node *i = l->previous;
     for (Node *j = l; j != h; j = j->next){
-        int f=compareby(j->contact, h->contact,option);
-     char * v =j->contact->email;
-     char * u =h->contact->email;
+
 
 
         if(compareby(j->contact, h->contact,option) <= 0)
@@ -234,11 +234,11 @@ BinaryTree * createTree(){
 }
 TreeNode* getrightMostChild(TreeNode * n ){
     if (n->rightChild) return getrightMostChild(n->rightChild);
-                return n;
+    return n;
 }
 TreeNode* getleftMostChild(TreeNode * n ){
     if (n->leftChild) return getrightMostChild(n->leftChild);
-                return n;
+    return n;
 }
 void addTreeNode(TreeNode *root, Contact *contact, char option){
     if(root->contact==NULL){
@@ -287,12 +287,12 @@ void prescribeSubTree(TreeNode * root, BinaryTree * binaryTree){
 
 }
 void detachfromparent(TreeNode * child, TreeNode * tree){
- if(tree) {
-     if (tree->leftChild == child) tree->leftChild = NULL;
-     if (tree->rightChild == child) tree->rightChild = NULL;
-     detachfromparent(child, tree->rightChild);
-     detachfromparent(child, tree->leftChild);
- }
+    if(tree) {
+        if (tree->leftChild == child) tree->leftChild = NULL;
+        if (tree->rightChild == child) tree->rightChild = NULL;
+        detachfromparent(child, tree->rightChild);
+        detachfromparent(child, tree->leftChild);
+    }
 
 
 }
@@ -334,14 +334,14 @@ TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
 }
 
 BinaryTree * rebuildTreeby(TreeNode* binaryTree, char option, BinaryTree * new){
-   if(binaryTree && binaryTree->contact) {
+    if(binaryTree && binaryTree->contact) {
 
-       Contact *contact = binaryTree->contact;
-       rebuildTreeby(binaryTree->leftChild,option, new);
-       rebuildTreeby(binaryTree->rightChild,option, new);
-       addTreeNode(new->root,contact,option);
+        Contact *contact = binaryTree->contact;
+        rebuildTreeby(binaryTree->leftChild,option, new);
+        rebuildTreeby(binaryTree->rightChild,option, new);
+        addTreeNode(new->root,contact,option);
 
-   }
+    }
     return new;
 
 }
@@ -379,7 +379,7 @@ PhoneBook * createPB(char  basedon){
 void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char* email, char *phone, char* date, char* address){
     Contact* contact = createContact(name, surname,email,phone,date,address);
     if(phoneBook->basedon == 'l'){
-            addContactToList(phoneBook->list,contact);
+        addContactToList(phoneBook->list,contact);
     }else{
         if (phoneBook ->basedon =='t'){
             addTreeNode(phoneBook->tree->root, contact, 'n');
@@ -390,10 +390,10 @@ void addContactToPhoneBook(PhoneBook * phoneBook,char* name, char* surname, char
 }
 Contact* searchContact(PhoneBook* phoneBook, char * name, char* surname){
     if(phoneBook->basedon == 'l'){
-         return searchContactinList(name,surname,phoneBook->list);
+        return searchContactinList(name,surname,phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
-           return searchTreeNode(name,surname, phoneBook->tree->root)->contact;
+            return searchTreeNode(name,surname, phoneBook->tree->root)->contact;
         }else{
             printf("Contact not in list!");
         }
@@ -453,15 +453,14 @@ void deletePhoneBook(PhoneBook * phoneBook){
 }
 void sortPhoneBook(PhoneBook * phoneBook, char option){
     if(phoneBook->basedon == 'l'){
-       quickSort(phoneBook->list->head, option);
+        quickSort(phoneBook->list->head, option);
     }else{
         if (phoneBook ->basedon =='t'){
             BinaryTree * new=createTree();
-        phoneBook->tree=rebuildTreeby(phoneBook->tree->root, option, new);
+            phoneBook->tree=rebuildTreeby(phoneBook->tree->root, option, new);
 
         }else{
             fprintf( stderr, "bad option");
         }
     }
 }
-
