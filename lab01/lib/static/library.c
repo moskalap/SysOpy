@@ -261,10 +261,33 @@ void addTreeByDate(TreeNode *root, Contact *contact){
 
     }
 }
-Contact * deleteTNode(TreeNode * t){
-    Contact * c= t->contact;
-    free(t);
-    return c;
+void prescribeSubTree(TreeNode * root, BinaryTree * binaryTree){
+
+    if(root){
+        Contact * toAdd = root->contact;
+        TreeNode * l= root->leftChild;
+        TreeNode * r= root->rightChild;
+        free (root);
+        if(toAdd) addTreeNode(binaryTree->root,toAdd, 'n');
+        prescribeSubTree(l, binaryTree);
+        prescribeSubTree(r, binaryTree);
+
+    }
+
+}
+Contact * deleteTNode(TreeNode * t, BinaryTree * tree){
+    if(t){
+        if(t->contact) deleteContactStruct(t->contact);
+        TreeNode * l= t->leftChild;
+        TreeNode * r =t->rightChild;
+        free(t);
+        prescribeSubTree(l, tree);
+        prescribeSubTree(r, tree);
+
+    }
+
+
+    return NULL;
 }
 void printTree(TreeNode* root){
     if(root!=NULL && root->contact!=NULL){
@@ -284,7 +307,7 @@ TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
         if(strcmp(root->contact->surname, surname)>0 || (strcmp(root->contact->surname, surname)==0 && strcmp(root->contact->name, name)>0))
             return searchTreeNode(name, surname, root->leftChild);
         if(strcmp(root->contact->surname, surname)<0) return searchTreeNode(name, surname, root->rightChild);
-    } else return NULL;
+    }
 
 }
 
@@ -384,7 +407,7 @@ void deleteContact(PhoneBook * phoneBook, char * name, char * surname){
         deleteContactInList(name, surname, phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
-            deleteTnode(searchTreeNode(name, surname, phoneBook->tree->root), phoneBook->tree->root);
+            deleteTNode(phoneBook->tree->root, phoneBook->tree);
 
         }else{
             printf("err");
