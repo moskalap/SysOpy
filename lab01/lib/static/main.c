@@ -64,6 +64,7 @@ void test_tree(){
     //deleteContact(phoneBook, "przemek", "moskala");
     sortPhoneBook(phoneBook, 'e');
     displayPhoneBook(phoneBook);
+    deletePhoneBook(phoneBook);
 
 }
 

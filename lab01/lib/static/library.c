@@ -121,6 +121,14 @@ void deleteList(LinkedList * list){
     }
     free(list);
 }
+void deleteContactStruct(Contact * contact){
+    free(contact->name);
+    free(contact->surname);
+    free(contact->address);
+    free(contact->email);
+    free(contact);
+
+}
 void swap(Node * a, Node * b){
     Contact *t = a ->contact;
     a->contact=b->contact;
@@ -292,7 +300,13 @@ BinaryTree * rebuildTreeby(TreeNode* binaryTree, char option, BinaryTree * new){
     return new;
 
 }
-
+void deleteTree(TreeNode * node){
+    if (node){
+        deleteTree(node->leftChild);
+        deleteTree(node->rightChild);
+        if (node->contact) deleteContactStruct(node->contact);
+    }
+}
 
 
 
@@ -370,6 +384,7 @@ void deleteContact(PhoneBook * phoneBook, char * name, char * surname){
         deleteContactInList(name, surname, phoneBook->list);
     }else{
         if (phoneBook ->basedon =='t'){
+            deleteTnode(searchTreeNode(name, surname, phoneBook->tree->root), phoneBook->tree->root);
 
         }else{
             printf("err");
@@ -382,7 +397,9 @@ void deletePhoneBook(PhoneBook * phoneBook){
         free(phoneBook);
     }else{
         if (phoneBook ->basedon =='t'){
-            printTree(phoneBook->tree->root);
+            deleteTree(phoneBook->tree->root);
+            free(phoneBook->tree);
+            free(phoneBook);
         }else{
             printf("err");
         }
