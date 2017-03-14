@@ -5,9 +5,9 @@
 typedef struct Contact {
     char *name;
     char *surname;
-    char *date[10]; //dd-mm-yyyy ->[10]
+    char *date; //dd-mm-yyyy ->[10]
     char *email;
-    char phone[9];
+    char *phone;
     char *address;
 } Contact;
 typedef struct Node {

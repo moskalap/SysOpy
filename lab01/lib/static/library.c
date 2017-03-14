@@ -1,8 +1,7 @@
 #include "library.h"
 
 #include <stdio.h>
-//PRIVATE;
-//sel
+
 
 Contact *createContact(char* name, char* surname, char* email, char *phone, char* date, char* address) {
     Contact *contact=malloc(sizeof(Contact));
@@ -10,6 +9,8 @@ Contact *createContact(char* name, char* surname, char* email, char *phone, char
     contact->surname=(char*)malloc(strlen(surname) * sizeof(char));
     contact->address=(char*)malloc(strlen(address) * sizeof(char));
     contact->email= (char*)malloc(strlen(email) * sizeof(char));
+    contact->date=(char*)malloc(strlen(date) *sizeof(char));
+    contact->phone=(char*)malloc(strlen(date)*sizeof(char));
     strcpy(contact->name, name);
     strcpy(contact->surname, surname);
     strcpy(contact->email, email);
@@ -126,6 +127,8 @@ void deleteContactStruct(Contact * contact){
     free(contact->surname);
     free(contact->address);
     free(contact->email);
+    free(contact->phone);
+    free(contact->date);
     free(contact);
 
 }
@@ -430,7 +433,7 @@ void deleteContact(PhoneBook * phoneBook, char * name, char * surname){
             deleteTNode(n, phoneBook->tree);
 
         }else{
-            printf("err");
+            fprintf( stderr, "there is no phonebook at this pointer");
         }
     }
 }
@@ -444,7 +447,7 @@ void deletePhoneBook(PhoneBook * phoneBook){
             free(phoneBook->tree);
             free(phoneBook);
         }else{
-            printf("err");
+            fprintf( stderr, "there is no phonebook at this pointer");
         }
     }
 }
@@ -457,7 +460,7 @@ void sortPhoneBook(PhoneBook * phoneBook, char option){
         phoneBook->tree=rebuildTreeby(phoneBook->tree->root, option, new);
 
         }else{
-            printf("err");
+            fprintf( stderr, "bad option");
         }
     }
 }
