@@ -3,5 +3,5 @@ project(sys_op_tasks)
 
 set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES lab01/lib/source/main.c)
+set(SOURCE_FILES lab01/lib/source/main.c lab01/lib/source/dynamic.c)
 add_executable(sys_op_tasks ${SOURCE_FILES})

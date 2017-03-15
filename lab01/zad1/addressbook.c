@@ -120,7 +120,7 @@ void deleteList(LinkedList * list){
     while(tmp!=NULL){
         free(tmp->contact);
         tmp=tmp->next;
-        if( tmp && tmp->previous!= NULL) free(tmp->previous);
+        if(tmp && tmp->previous!= NULL) free(tmp->previous);
     }
     free(list);
 }

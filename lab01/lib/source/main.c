@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "addressbook.h"
-#include "addressbook.c"
+#include "../../zad1/addressbook.h"
+#include "../../zad1/addressbook.c"
 
 
 static char *rand_string(char *str, size_t size)
