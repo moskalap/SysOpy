@@ -1,4 +1,4 @@
-# Install script for directory: /home/przemek/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/lab01/lib/static
+# Install script for directory: /home/przemek/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/tests/lib/static
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
