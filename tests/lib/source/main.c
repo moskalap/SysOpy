@@ -78,7 +78,7 @@ void test_tree(){
 
 
 
-int main(){
+int main(i){
     test_tree();
 
 
