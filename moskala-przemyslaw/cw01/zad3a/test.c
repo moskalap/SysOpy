@@ -99,8 +99,7 @@ char * generateDate(){
     return date;
 }
 
-void start_clock(void);
-void end_clock();
+
 
 
 void test_list() {
