@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dlfcn.h
 
 
 Contact *createContact(char* name, char* surname, char* email, char *phone, char* date, char* address) {
@@ -121,7 +120,7 @@ void deleteList(LinkedList * list){
     while(tmp!=NULL){
         free(tmp->contact);
         tmp=tmp->next;
-        if(tmp && tmp->previous!= NULL) free(tmp->previous);
+        if( tmp && tmp->previous!= NULL) free(tmp->previous);
     }
     free(list);
 }
@@ -171,8 +170,8 @@ char *getPivot(Node* h , char option){
 
         case 'd':
             return h->contact->date;
-        default:
-            return NULL;
+	default:
+	return NULL;
 
     }
 }
@@ -192,8 +191,8 @@ int compareby(Contact * a, Contact * b, char option){
 
         case 'd':
             return strcmp(a->date, b->date);
-        default:
-            return 0;
+	default:
+		return 0;
 
     }
 }
@@ -334,7 +333,7 @@ TreeNode * searchTreeNode(char * name, char * surname,TreeNode* root){
             return searchTreeNode(name, surname, root->leftChild);
         if(strcmp(root->contact->surname, surname)<0) return searchTreeNode(name, surname, root->rightChild);
     }
-    return NULL;
+return NULL;
 
 }
 
@@ -469,3 +468,4 @@ void sortPhoneBook(PhoneBook * phoneBook, char option){
         }
     }
 }
+
