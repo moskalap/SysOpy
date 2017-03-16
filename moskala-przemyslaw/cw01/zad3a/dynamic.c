@@ -112,12 +112,70 @@ void test_list() {
     printf("\n________________________________________");
     printf("\n_____________Oparta na liscie___________");
     printf("\n________________________________________\n");
-    void* library = dlopen("./lib/libshared.so", RTLD_LAZY);
-    PhoneBook * (createPB) (PhoneBook);
+    void* library = dlopen("./lib/libaddressbook_shared.so", RTLD_LAZY);
+    printf("Tworzenie ksiązki (10k kontaktów)");
+    start_clock();
+    PhoneBook* (*createPB) ( char a);
+    createPB =dlsym(library, "createPB");
+   if(!createPB){
+       printf("errr");
+   }
 
-    createPB = (PhoneBook * (PhoneBook)) dlsym(library, "createPB");
-    PhoneBook * p= ((*createPB));
-    
+    PhoneBook * p= ((*createPB)('l'));
+
+
+    void (*add) (PhoneBook * phoneBook,char* name, char* surname, char* email, char *phone, char* date, char* address);
+    add = dlsym(library, "addContactToPhoneBook");
+
+    for ( int i=0 ; i< 1000;  i++)
+      ((*add) (p,rand_string_alloc(rand()%10+3),rand_string_alloc(rand()%1+3),generateMail(),randDigitalloc(9),generateDate(),rand_string_alloc(rand()%10+3)));
+    end_clock();
+
+
+    printf("\n\nSortowanie ksiazki:");
+    start_clock();
+    void (*sort) (PhoneBook * phoneBook, char option);
+    sort= dlsym(library,"sortPhoneBook");
+    (*sort)(p,'n');
+
+    //sortPhoneBook(phoneBook, 'n');
+    end_clock();
+
+
+
+
+    printf("\n\nDodanie jednego kontaktu:");
+    start_clock();
+    (*add) (p,"Jan","Kowalski",generateMail(),randDigitalloc(9),generateDate(),rand_string_alloc(rand()%10+3));
+    end_clock();
+
+    printf("\n\nUsuwanie jednego kontaktu (optymistyczne):");
+    start_clock();
+    void (*delete) (PhoneBook * p, char* name, char * surname);
+    delete=dlsym(library,"deleteContact");
+    (*delete) (p, "Przemek", "Moskala");
+    end_clock();
+    (*add) (p,"Jan2","Kowalski2",generateMail(),randDigitalloc(9),generateDate(),rand_string_alloc(rand()%10+3));
+
+    printf("\n\nWyszukiwanie kontaktu:");
+    start_clock();
+
+    Contact * (*search) (PhoneBook *p, char* name, char* surname);
+    search=dlsym(library,"searchContact");
+    (* search) (p, "Jan2", "Kowalski2");
+    end_clock();
+
+    printf("\n\nUsuwanie jednego kontaktu:");
+    start_clock();
+    (*delete)(p, "Jan2", "Kowalski2");
+
+    end_clock();
+
+
+
+
+
+
 
 }
 

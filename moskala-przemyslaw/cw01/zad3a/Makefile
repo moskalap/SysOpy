@@ -4,7 +4,7 @@ NAME=test
 LIBSDIR= ./lib
 TXT = result.txt
 
-all: static shared run
+all:  static shared dynamic
 	
 static:  $(NAME)_static
  
@@ -17,12 +17,16 @@ shared: $(NAME)_shared
 $(NAME)_shared:	$(LIBSDIR)/libaddressbook_shared.so test.c
 	$(CC) $(FLAGS) test.c -L$(LIBSDIR) -laddressbook_shared -Wl,-rpath=$(LIBSDIR) -o test_shared
 
+dynamic: $(NAME)_dynamic
 
+$(NAME)_dynamic:
+	gcc dynamic.c -ldl -o test_dynamic
 
 run: 	
 	printf "\ntest_static" >>result.txt	
 	./test_static >> result.txt
-	printf "\ntest_shared" >>result.txt	
-	./test_shared >> result.txt
+	printf "\ntest_shared" >>result.txt
+	./test_shared >> result.txt	
+	printf "\ntest_dynamic" >>result.txt
+	./test_dynamic >> result.txt	
 	
-
