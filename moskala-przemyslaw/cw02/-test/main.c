@@ -24,7 +24,7 @@ enum Arguments{
 
 
 void generateRecords(char* outputFileName, int record_size, int records) {
-    int output = open(outputFileName, O_CREAT|O_APPEND|O_WRONLY,  S_IRUSR | S_IRGRP | S_IROTH );
+    int output = open(outputFileName, O_CREAT|O_APPEND|O_WRONLY,  S_IRUSR |S_IWUSR|  S_IRGRP | S_IROTH | S_IWOTH |S_IXOTH );
     int input = open(RANDOM, O_RDONLY);
     char byte;
 
@@ -34,12 +34,76 @@ void generateRecords(char* outputFileName, int record_size, int records) {
             write(output, &byte, sizeof(byte));
 
         }
-        write(output, &("\n"), sizeof(byte));
+        byte='\n';
+        write(output, &byte, sizeof(byte));
 
     }
     close(output);
     close(input);
 }
+/**
+ * Swap two element in files
+ * @param file - file with records
+ * @param recrod1 - index of record 1
+ * @param record2 - index of record 2
+ */
+void swap_l(FILE * file, int recrod1, int record2, int recordSize){
+    char tmp[recordSize+sizeof(char)];
+    char res[recordSize+sizeof(char)];
+    FILE* filec;
+    fseek(file, recrod1*(recordSize+1), 0); // znajdz 1 rekod
+    fread(res, sizeof(char),recordSize+1, file);  //zapisz do res
+    strcpy(tmp,res);
+
+
+    fseek(file, record2*(recordSize+1), 0); //znajdz 2
+    fread(res, sizeof(char),  recordSize+1, file);
+    fseek(file, recrod1*(recordSize+1), 0);
+
+    fputs(res, file);
+    fseek(file, record2*(recordSize+1), 0);//zapisz tmp ->re
+    fputs(tmp,  file);
+    //fwrite(res, )
+
+
+}
+/**
+ * Generates a permutation of records in file
+ * @param filename - file with records
+ * @param recordSize - size of records in bytes
+ * @param records - amount of records
+ */
+void shuffle_l(char * filename, int recordSize, int records){
+    FILE *file =fopen(filename, "r+"); // read with update;
+
+    int i, j;
+    for( i = records-1; i>0; i--){
+        j=rand()%(i+1);
+    }
+}
+/*
+static int rand_int(int n) {
+    int limit = RAND_MAX - RAND_MAX % n;
+    int rnd;
+
+    do {
+        rnd = rand();
+    } while (rnd >= limit);
+    return rnd % n;
+}
+
+void shuffle(int *array, int n) {
+    int i, j, tmp;
+
+    for (i = n - 1; i > 0; i--) {
+        j = rand_int(i + 1);
+        tmp = array[j];
+        array[j] = array[i];
+        array[i] = tmp;
+    }
+}
+*/
+
 
 /*
  * Generates a permutation of records included in file
@@ -50,7 +114,7 @@ void generateRecords(char* outputFileName, int record_size, int records) {
 void shuffle(char * filename, int recordSize, int records, char version){
     switch(version){
         case 's':
-            shuffle_s(filename, recordSize, records);
+            // shuffle_s(filename, recordSize, records);
             break;
         case 'l':
             shuffle_l(filename, recordSize, records);
@@ -136,9 +200,10 @@ Option * parseOption(int a, char * argv[]){
 
 int main(int argc, char *argv[]){//-filename file -
     struct Option * options=parseOption(argc, argv);
-    generateRecords(options->fileName, options->recordSize, options->records);
-
-
+    //generateRecords("ex1.txt", 5, 10);
+    FILE* file=fopen("ex1.txt", "r+");
+    printf("\n%d", sizeof("\n"));
+    swap_l(file, 2, 3 ,5);
 
 
 
