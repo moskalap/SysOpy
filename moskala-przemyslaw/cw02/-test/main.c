@@ -1,8 +1,6 @@
 //
 // Created by przemek on 16.03.17.
 //
-
-
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,23 +9,27 @@
 #include <zconf.h>
 
 #include <time.h>
-
+enum Functions{shuffle, sort, generate};
 
 typedef struct Option{
     char* fileName;
     char option;
     int recordSize;
     int records;
+    char* function;
 }Option;
-
 static char * RANDOM = "/dev/urandom";
-static char * OPEN_OPT = "ab+";
+
 enum Arguments{
-    file, version, record_size, file_size,
+    file, version, record_size, file_size, function
 };
-
-
-void generateRecords(char* outputFileName, int record_size, int records) {
+/**
+ * Generates a records
+ * @param outputFileName
+ * @param record_size
+ * @param records
+ */
+void generate_records(char* outputFileName, int record_size, int records) {
     int output = open(outputFileName, O_CREAT|O_APPEND|O_WRONLY,  S_IRUSR |S_IWUSR|  S_IRGRP | S_IROTH | S_IWOTH |S_IXOTH );
     int input = open(RANDOM, O_RDONLY);
     char byte;
@@ -54,11 +56,10 @@ void generateRecords(char* outputFileName, int record_size, int records) {
 void swap_l(FILE * file, int recrod1, int record2, int recordSize){
     char tmp[recordSize+sizeof(char)];
     char res[recordSize+sizeof(char)];
-    FILE* filec;
+
     fseek(file, recrod1*(recordSize+1), 0); // znajdz 1 rekod
     fread(res, sizeof(char),recordSize+1, file);  //zapisz do res
     strcpy(tmp,res);
-
 
     fseek(file, record2*(recordSize+1), 0); //znajdz 2
     fread(res, sizeof(char),  recordSize+1, file);
@@ -86,7 +87,6 @@ void shuffle_l(char * filename, int recordSize, int records){
         swap_l(file, i, j, recordSize);
     }
 }
-
 /**
  * Swap two element in files
  * @param file - file with records
@@ -99,7 +99,7 @@ void swap_s(int file, int record1, int record2, int recordSize){
     char res[recordSize+sizeof(char)];
 
     lseek(file, record1*(recordSize+1), SEEK_SET);
-    read(file, tmp, (size_t)(recordSize +1)); // znajdz 1 rekod
+    read(file, res, (size_t)(recordSize +1)); // znajdz 1 rekod
     strcpy(tmp,res);
 
 
@@ -110,20 +110,16 @@ void swap_s(int file, int record1, int record2, int recordSize){
     write(file, res, (size_t)(recordSize+1));
     lseek(file, record2*(recordSize+1), SEEK_SET);//zapisz tmp ->re
     write(file,  tmp, (size_t)(recordSize+1));
-    //fwrite(res, )
+
 
 
 }
-
-
-
 /**
  * Generates a permutation of records in file usings systems
  * @param filename - file with records
  * @param recordSize - size of records in bytes
  * @param records - amount of records
  */
-
 void shuffle_s(char * filename, int recordSize, int records){
     int file= open(filename, O_RDWR);
 
@@ -133,16 +129,13 @@ void shuffle_s(char * filename, int recordSize, int records){
         swap_s(file, i, j, recordSize);
     }
 }
-
-
-
 /*
  * Generates a permutation of records included in file
  * depending of version:
  * 's' --> using sys function
  * 'l' --> using lib function
  */
-void shuffle(char * filename, int recordSize, int records, char version){
+void shufflee(char * filename, int recordSize, int records, char version){
     switch(version){
         case 's':
             shuffle_s(filename, recordSize, records);
@@ -159,25 +152,6 @@ void shuffle(char * filename, int recordSize, int records, char version){
 
 
 }
-char getRec1stByte(FILE * file, int record){
-
-}
-
-
-
-
-void generateFile(char* name, int recordSize, int records){
-
-    FILE *output =fopen(name,"wb");
-    char* record;
-
-    for(int i = 0; i< records; i++){
-
-        fwrite(record, sizeof(char), sizeof(record), output);
-    }
-
-
-}
 enum Arguments descript (char * arg){
     if (strcmp( arg, "-file") == 0) return file;
     else
@@ -186,6 +160,8 @@ enum Arguments descript (char * arg){
     if(strcmp(arg, "-fsize") == 0) return file_size;
     else
     if(strcmp(arg, "-rsize")==0) return record_size;
+    else
+        if(strcmp(arg, "-fun")==0) return function;
 
 
 
@@ -208,6 +184,8 @@ Option * parseOption(int a, char * argv[]){
             case record_size:
                 option->recordSize = atoi(argv[i+1]);
                 break;
+            case function:
+                option->function=argv[i+1];
             default:
                 break;
 
@@ -242,7 +220,22 @@ int compare_l( FILE * file, int index1, int index2, int recordSize){
 
 
 }
+int compare_s( int file, int index1, int index2, int recordSize){
+    char record1[recordSize+sizeof(char)];
+    char record2[recordSize+sizeof(char)];
+    lseek(file, index1*(recordSize+1), SEEK_SET);
+    read(file, record1, recordSize+1);
+    lseek(file, index2*(recordSize+1), SEEK_SET);
+    read(file, record2, recordSize+1);
+   // fread(record1, sizeof(char),recordSize+1, file);
 
+    if(record1[0]<record2[0]) return -1;
+    if(record1[0]==record2[0]) return 0;
+    return 1;
+
+
+
+}
 /**
  * Sorting using libs functions
  * @param file
@@ -257,7 +250,14 @@ void bubble_sort_l(FILE * file, int records, int recordSize){
         }
 
 }
+void bubble_sort_s(int file, int records, int recordSize){
+    for(int i=0; i<records; i++)
+        for(int j=0; j< records-i-1; j++){
+            if(compare_s(file, j, j+1, recordSize) >0)
+                swap_s(file, j, j+1, recordSize);
+        }
 
+}
 /**
  * Sorting a file with records, according to the option:
  *
@@ -267,8 +267,9 @@ void bubble_sort_l(FILE * file, int records, int recordSize){
  * @param option  - 'l' --> using  library IO functions;
  *                  's' --> using systems IO functions;
  */
-void sort (char * filename, int records, int recordSize, char option){
+void bubble_sort (char * filename, int records, int recordSize, char option){
     FILE * file=fopen(filename, "r+");
+    int file1=open(filename, O_RDWR);
     switch (option){
 
         case 'l':
@@ -276,19 +277,58 @@ void sort (char * filename, int records, int recordSize, char option){
             bubble_sort_l(file, records, recordSize);
             break;
         case 's':
+            bubble_sort_s(file1,records,recordSize);
             break;
 
     }
     fclose(file);
+    close(file1);
 }
+int check_if_correct(Option* option){
+    if(option->records<1) {
+        printf("\nAmount of records can not be less than 1!\n")
+                return -1;
+    }
+    if(option->recordSize<1){
+        printf("\nRecord size can not be less than 1!\n")
+        return -2;
+    }
+    if(!option->option == 'l' && !option->option == 's'){
+        printf("\nVersion of program are:\ns-for system functions\nl - for library functions")
+        return -2;
+    }
+    if(option->function == NULL){
+        printf("\nFunctions of program are:\nshuffle, sort or generate");
+        return -2;
+    }
+    return 0;
+
+
+}
+
+
 int main(int argc, char *argv[]){
     srand(time(NULL));
     //-filename file -
     struct Option * options=parseOption(argc, argv);
-   // generateRecords("ex1.txt", 5, 10);
-    FILE* file=fopen("ex1.txt", "r+");
-    printf("\n%d", sizeof("\n"));
-    sort("ex1.txt",10,5,'l' );
+    if(check_if_correct(options)==0)
+    switch(descript_function(options->function)){
+        case generate:
+            generate_records(options->fileName,options->recordSize,options->records);
+            break;
+        case shuffle:
+            shufflee(options->fileName,options->recordSize, options->records,options->option);
+            break;
+        case sort:
+            bubble_sort(options->fileName, options->records, options->recordSize, options->option)
+
+            break;
+        default:
+            printf("\nUnknown function\nUse -fun {generate, shuffle, sort}\n");
+    }
+
+
+
 
 
 
