@@ -41,8 +41,26 @@ void generateRecords(char* outputFileName, int record_size, int records) {
     close(input);
 }
 
+/*
+ * Generates a permutation of records included in file
+ * depending of version:
+ * 's' --> using sys function
+ * 'l' --> using lib function
+ */
+void shuffle(char * filename, int recordSize, int records, char version){
+    switch(version){
+        case 's':
+            shuffle_s(filename, recordSize, records);
+            break;
+        case 'l':
+            shuffle_l(filename, recordSize, records);
+            break;
+        default:
+            printf("\nerrUnknown option!\n");
+            break;
 
-void shuffle(FILE * file, int recordSize, int records){
+    }
+
 
 
 }
