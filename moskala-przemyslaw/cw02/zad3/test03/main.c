@@ -7,7 +7,7 @@ enum Options {
     lock_r, unlock_r, lock_w, unlock_w, read, write, list, help, nothing, quit
 };
 enum Version{repeat, normal, nothing};
-enum Rights {write, read};
+enum Permission {write, read};
 void display_man(){
     printf("\nUse:");
     printf("\n\t-lr\tfor locking read mode on byte,");
@@ -53,11 +53,11 @@ enum Options decode(char input[BFFR_L]){
     if(strcmp(input,"-quit\n") ==0) return quit;
     return nothing;
 }
-void lock(int file, int byte, enum Rights right, enum Version v){
+void lock(int file, int byte, enum Permission permission, enum Version v){
     struct flock *opt=malloc(sizeof(struct flock));
    switch (v){
        case repeat:
-           switch(right){
+           switch(permission){
                case write:
                     opt->l_type=F_WRLCK;
                     opt->l_whence=SEEK_SET;
@@ -75,7 +75,7 @@ void lock(int file, int byte, enum Rights right, enum Version v){
            }
            break;
        case normal:
-           switch(right){
+           switch(permission){
                case write:
                    opt->l_type=F_WRLCK;
                    opt->l_whence=SEEK_SET;
@@ -94,6 +94,58 @@ void lock(int file, int byte, enum Rights right, enum Version v){
            break;
 
    }
+}
+void unlock(int file, int byte, enum Permission permission, enum Version v){
+        struct flock *opt=malloc(sizeof(struct flock));
+    switch(v){
+        case repeat:
+            switch(permission){
+                case write:
+                    opt->l_type=F_UNLCK;
+                    opt->l_whence=SEEK_SET;
+                    opt->l_len=1;
+                    opt->l_start=byte;
+                    fcntl(file, F_SETLKW, opt);
+
+                    break;
+                case read:
+                    opt->l_type=F_UNLCK;
+                    opt->l_whence=SEEK_SET;
+                    opt->l_len=1;
+                    opt->l_start=byte;
+                    fcntl(file, F_SETLKW, opt);
+                    break;
+                default:
+                    printf("perm err");
+
+            }
+            break;
+        case normal:
+            switch(permission){
+                case write:
+                    opt->l_type=F_UNLCK;
+                    opt->l_whence=SEEK_SET;
+                    opt->l_len=1;
+                    opt->l_start=byte;
+                    fcntl(file, F_SETLK, opt);
+                    break;
+                case read:
+                    opt->l_type=F_UNLCK;
+                    opt->l_whence=SEEK_SET;
+                    opt->l_len=1;
+                    opt->l_start=byte;
+                    fcntl(file, F_SETLK, opt);
+                    break;
+                default:
+                    printf("perm err");
+
+            }
+            break;
+        default:
+            printf("err v");
+            break;
+
+    }
 }
 void interact(char filename[BFFR_L]){
 
@@ -164,6 +216,8 @@ void interact(char filename[BFFR_L]){
 
     }
 }
-int main(){
-    interact();
+int main(int argc, char * argv[]){
+
+
+
 }
