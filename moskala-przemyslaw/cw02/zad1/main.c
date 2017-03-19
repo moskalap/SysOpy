@@ -16,12 +16,12 @@ typedef struct Option{
     char option;
     int recordSize;
     int records;
-    char* function;
+    enum Functions function;
 }Option;
 static char * RANDOM = "/dev/urandom";
 
 enum Arguments{
-    file, version, record_size, file_size, function
+    file, version, record_size, file_size, function,nothing
 };
 /**
  * Generates a records
@@ -68,9 +68,6 @@ void swap_l(FILE * file, int recrod1, int record2, int recordSize){
     fputs(res, file);
     fseek(file, record2*(recordSize+1), 0);//zapisz tmp ->re
     fputs(tmp,  file);
-    //fwrite(res, )
-
-
 }
 /**
  * Generates a permutation of records in file using libs
@@ -86,9 +83,10 @@ void shuffle_l(char * filename, int recordSize, int records){
         j=rand()%(i+1);
         swap_l(file, i, j, recordSize);
     }
+    fclose(file);
 }
 /**
- * Swap two element in files
+ * Swap two element in files using system functions
  * @param file - file with records
  * @param recrod1 - index of record 1
  * @param record2 - index of record 2
@@ -101,17 +99,12 @@ void swap_s(int file, int record1, int record2, int recordSize){
     lseek(file, record1*(recordSize+1), SEEK_SET);
     read(file, res, (size_t)(recordSize +1)); // znajdz 1 rekod
     strcpy(tmp,res);
-
-
     lseek(file, record2*(recordSize+1), SEEK_SET); //znajdz 2
     read(file, res,  recordSize+1);
     lseek(file, record1*(recordSize+1), SEEK_SET);
-
     write(file, res, (size_t)(recordSize+1));
     lseek(file, record2*(recordSize+1), SEEK_SET);//zapisz tmp ->re
     write(file,  tmp, (size_t)(recordSize+1));
-
-
 
 }
 /**
@@ -129,7 +122,7 @@ void shuffle_s(char * filename, int recordSize, int records){
         swap_s(file, i, j, recordSize);
     }
 }
-/*
+/**
  * Generates a permutation of records included in file
  * depending of version:
  * 's' --> using sys function
@@ -152,6 +145,11 @@ void shufflee(char * filename, int recordSize, int records, char version){
 
 
 }
+/**
+ * descript argument by string
+ * @param arg string
+ * @return enum ARG
+ */
 enum Arguments descript (char * arg){
     if (strcmp( arg, "-file") == 0) return file;
     else
@@ -162,48 +160,21 @@ enum Arguments descript (char * arg){
     if(strcmp(arg, "-rsize")==0) return record_size;
     else
     if(strcmp(arg, "-fun")==0) return function;
+    else return nothing;
 
 
 
 }
-Option * parseOption(int a, char * argv[]){
-    Option *option=malloc(sizeof(option));
-    enum Arguments arg;
-    for (int i=1; i<a; i++){//-file -u -fsize -rsize -
-        arg = descript(argv[i]);
-        switch(arg){
-            case file:
-                option->fileName=argv[i+1];
-                break;
-            case version:
-                option->option=argv[i+1][0];
-                break;
-            case file_size:
-                option->records=atoi(argv[i+1]);
-                break;
-            case record_size:
-                option->recordSize = atoi(argv[i+1]);
-                break;
-            case function:
-                option->function=argv[i+1];
-            default:
-                break;
-
-        }
-    }
-    printf("Opcje:\n");
-    printf("PLIK:");
-    printf(option->fileName);
-    printf("\nWERSJA: ");
-    printf("%c", option->option);
-    printf("\nREKORD: ");
-    printf("%d", option->recordSize);
-
-    printf("\nREKORDY: ");
-    printf("%d", option->records);
-    return option;
-
-}
+/**
+ * Compare first bytes of two records using lib functions
+ * @param file
+ * @param index1 of 1st record
+ * @param index2 of 2nd record
+ * @param recordSize in bytes
+ * @return -1 if record1<record2
+ *          0 if record1 == record 2
+ *          if record1 => reocord 2
+ */
 int compare_l( FILE * file, int index1, int index2, int recordSize){
     char record1[recordSize+sizeof(char)];
     char record2[recordSize+sizeof(char)];
@@ -220,6 +191,16 @@ int compare_l( FILE * file, int index1, int index2, int recordSize){
 
 
 }
+/**
+ * Compare first bytes of two records using sys functions
+ * @param file
+ * @param index1 of 1st record
+ * @param index2 of 2nd record
+ * @param recordSize in bytes
+ * @return -1 if record1<record2
+ *          0 if record1 == record 2
+ *          if record1 => reocord 2
+ */
 int compare_s( int file, int index1, int index2, int recordSize){
     char record1[recordSize+sizeof(char)];
     char record2[recordSize+sizeof(char)];
@@ -250,6 +231,12 @@ void bubble_sort_l(FILE * file, int records, int recordSize){
         }
 
 }
+/**
+ * Sorting using sys functions
+ * @param file
+ * @param records
+ * @param recordSize
+ */
 void bubble_sort_s(int file, int records, int recordSize){
     for(int i=0; i<records; i++)
         for(int j=0; j< records-i-1; j++){
@@ -284,35 +271,84 @@ void bubble_sort (char * filename, int records, int recordSize, char option){
     fclose(file);
     close(file1);
 }
+/**
+ * checks if options are syntax correct
+ * @param option
+ * @return
+ */
 int check_if_correct(Option* option){
     if(option->records<1) {
-        printf("\nAmount of records can not be less than 1!\n")
+        printf("\nAmount of records can not be less than 1!\n");
         return -1;
     }
     if(option->recordSize<1){
-        printf("\nRecord size can not be less than 1!\n")
+        printf("\nRecord size can not be less than 1!\n");
         return -2;
     }
     if(!option->option == 'l' && !option->option == 's'){
-        printf("\nVersion of program are:\ns-for system functions\nl - for library functions")
+        printf("\nVersion of program are:\ns-for system functions\nl - for library functions");
         return -2;
     }
-    if(option->function == NULL){
-        printf("\nFunctions of program are:\nshuffle, sort or generate");
-        return -2;
-    }
+
     return 0;
 
 
 }
+/**
+ * descript function given in arguments
+ * @param function given in string
+ * @return
+ */
+enum Functions descript_function(char * function){
+    if (strcmp(function, "generate") == 0 ) return generate;
+    if (strcmp(function, "shuffle") == 0 ) return shuffle;
+    if (strcmp(function, "sort") == 0 ) return sort;
+    printf("\nUnknown function!\n");
+//    return NULL;
 
 
+}
+/**
+ * return container with arguments
+ * @param count of args
+ * @param argv - array of strings
+ * @return
+ */
+Option * parseOption(int a, char * argv[]){
+    Option *option=malloc(sizeof(option));
+    enum Arguments arg;
+    for (int i=1; i<a; i++){//-file -u -fsize -rsize -
+        arg = descript(argv[i]);
+        switch(arg){
+            case file:
+                option->fileName=argv[i+1];
+                break;
+            case version:
+                option->option=argv[i+1][0];
+                break;
+            case file_size:
+                option->records=atoi(argv[i+1]);
+                break;
+            case record_size:
+                option->recordSize = atoi(argv[i+1]);
+                break;
+            case function:
+                option->function=descript_function(argv[i+1]);
+                break;
+
+            default:
+                break;
+
+        }
+    }
+    return option;
+
+}
 int main(int argc, char *argv[]){
     srand(time(NULL));
-    //-filename file -
     struct Option * options=parseOption(argc, argv);
     if(check_if_correct(options)==0)
-        switch(descript_function(options->function)){
+        switch(options->function){
             case generate:
                 generate_records(options->fileName,options->recordSize,options->records);
                 break;
@@ -320,7 +356,7 @@ int main(int argc, char *argv[]){
                 shufflee(options->fileName,options->recordSize, options->records,options->option);
                 break;
             case sort:
-                bubble_sort(options->fileName, options->records, options->recordSize, options->option)
+                bubble_sort(options->fileName, options->records, options->recordSize, options->option);
 
                 break;
             default:

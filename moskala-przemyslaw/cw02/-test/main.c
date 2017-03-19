@@ -16,12 +16,12 @@ typedef struct Option{
     char option;
     int recordSize;
     int records;
-    char* function;
+    enum Functions function;
 }Option;
 static char * RANDOM = "/dev/urandom";
 
 enum Arguments{
-    file, version, record_size, file_size, function
+    file, version, record_size, file_size, function,nothing
 };
 /**
  * Generates a records
@@ -162,48 +162,12 @@ enum Arguments descript (char * arg){
     if(strcmp(arg, "-rsize")==0) return record_size;
     else
         if(strcmp(arg, "-fun")==0) return function;
+    else return nothing;
 
 
 
 }
-Option * parseOption(int a, char * argv[]){
-    Option *option=malloc(sizeof(option));
-    enum Arguments arg;
-    for (int i=1; i<a; i++){//-file -u -fsize -rsize -
-        arg = descript(argv[i]);
-        switch(arg){
-            case file:
-                option->fileName=argv[i+1];
-                break;
-            case version:
-                option->option=argv[i+1][0];
-                break;
-            case file_size:
-                option->records=atoi(argv[i+1]);
-                break;
-            case record_size:
-                option->recordSize = atoi(argv[i+1]);
-                break;
-            case function:
-                option->function=argv[i+1];
-            default:
-                break;
 
-        }
-    }
-    printf("Opcje:\n");
-    printf("PLIK:");
-    printf(option->fileName);
-    printf("\nWERSJA: ");
-    printf("%c", option->option);
-    printf("\nREKORD: ");
-    printf("%d", option->recordSize);
-
-    printf("\nREKORDY: ");
-    printf("%d", option->records);
-    return option;
-
-}
 int compare_l( FILE * file, int index1, int index2, int recordSize){
     char record1[recordSize+sizeof(char)];
     char record2[recordSize+sizeof(char)];
@@ -286,33 +250,84 @@ void bubble_sort (char * filename, int records, int recordSize, char option){
 }
 int check_if_correct(Option* option){
     if(option->records<1) {
-        printf("\nAmount of records can not be less than 1!\n")
+        printf("\nAmount of records can not be less than 1!\n");
                 return -1;
     }
     if(option->recordSize<1){
-        printf("\nRecord size can not be less than 1!\n")
+        printf("\nRecord size can not be less than 1!\n");
         return -2;
     }
     if(!option->option == 'l' && !option->option == 's'){
-        printf("\nVersion of program are:\ns-for system functions\nl - for library functions")
+        printf("\nVersion of program are:\ns-for system functions\nl - for library functions");
         return -2;
     }
-    if(option->function == NULL){
-        printf("\nFunctions of program are:\nshuffle, sort or generate");
-        return -2;
-    }
+
     return 0;
 
 
 }
 
+enum Functions descript_function(char * function){
+    if (strcmp(function, "generate") == 0 ) return generate;
+    if (strcmp(function, "shuffle") == 0 ) return shuffle;
+    if (strcmp(function, "sort") == 0 ) return sort;
+    printf("\nUnknown function!\n");
+//    return NULL;
 
+
+}
+
+Option * parseOption(int a, char * argv[]){
+    Option *option=malloc(sizeof(option));
+    enum Arguments arg;
+    for (int i=1; i<a; i++){//-file -u -fsize -rsize -
+        arg = descript(argv[i]);
+        switch(arg){
+            case file:
+                option->fileName=argv[i+1];
+                break;
+            case version:
+                option->option=argv[i+1][0];
+                break;
+            case file_size:
+                option->records=atoi(argv[i+1]);
+                break;
+            case record_size:
+                option->recordSize = atoi(argv[i+1]);
+                break;
+            case function:
+
+                option->function=descript_function(argv[i+1]);
+                break;
+
+                //memccpy(option->function, argv[i+1], (size_t)(sizeof(argv[i+1])) );
+                //       argv[i+1];
+            default:
+                break;
+
+        }
+    }
+    printf("Opcje:\n");
+    printf("PLIK:");
+    printf(option->fileName);
+    printf("\nWERSJA: ");
+    printf("%c", option->option);
+    printf("\nREKORD: ");
+    printf("%d", option->recordSize);
+
+    printf("\nREKORDY: ");
+    printf("%d", option->records);
+    printf("\nfunc: ");
+    // printf("%d", option->function);
+    return option;
+
+}
 int main(int argc, char *argv[]){
     srand(time(NULL));
     //-filename file -
     struct Option * options=parseOption(argc, argv);
     if(check_if_correct(options)==0)
-    switch(descript_function(options->function)){
+    switch(options->function){
         case generate:
             generate_records(options->fileName,options->recordSize,options->records);
             break;
@@ -320,7 +335,7 @@ int main(int argc, char *argv[]){
             shufflee(options->fileName,options->recordSize, options->records,options->option);
             break;
         case sort:
-            bubble_sort(options->fileName, options->records, options->recordSize, options->option)
+            bubble_sort(options->fileName, options->records, options->recordSize, options->option);
 
             break;
         default:
