@@ -148,6 +148,36 @@ void unlock(int file, int byte, enum Permission permission, enum Version v){
 
     }
 }
+void display_locks( int file){
+    struct flock r;
+    struct flock w;
+    int byte=0;
+    int end=lseek(file,0,SEEK_END);
+    int act=lseek(file,byte, SEEK_SET);
+    for(;act+byte<end;byte++){
+        lseek(file, byte,SEEK_SET);
+        r.l_type=F_RDLCK;
+        r.l_whence=SEEK_SET;
+        r.l_start=byte;
+        r.l_len=1;
+        fcntl(file, F_GETLK,&r);
+        if(r.l_type !=F_UNLCK)
+            printf("LOCKED");
+    }
+
+
+}
+void read_from(int file, int byte){
+    char res[BFFR_L];
+
+    lseek(file,byte,SEEK_SET);
+    read(file,res,1);
+    printf("%c", res[0]);
+}
+void write_to(int file, int byte, char* new){
+    lseek(file, byte, SEEK_SET);
+    write(file, new, strlen(new)*sizeof(char));
+}
 void interact(char filename[BFFR_L]){
 
     char input[BFFR_L];
@@ -170,39 +200,38 @@ void interact(char filename[BFFR_L]){
 
                 break;
             case unlock_r:
-                open(filename, O_RDONLY);
+               file= open(filename, O_RDONLY);
                 byte=scan_byte_no();
                 v=scan_version();
                 unlock(file, byte, readp, v);
                 break;
             case lock_w:
-                open(filename, O_RDONLY);
+                file=open(filename, O_RDONLY);
                 byte=scan_byte_no();
-                v=scan_version();
-                lock(file, byte, writep, v);
+                //v=scan_version();
+                lock(file, byte, writep, repeat);
                 break;
             case unlock_w:
-                open(filename, O_RDONLY);
+                file=open(filename, O_RDONLY);
                 byte=scan_byte_no();
-                v=scan_version();
-                unlock(file, byte, writep, v);
+               // v=scan_version();
+                unlock(file, byte, writep, repeat);
                 break;
             case reado:
-
-                open(filename, O_RDONLY);
+                file=open(filename, O_RDONLY);
                 byte=scan_byte_no();
-                //read_from(file, byte);
-
+                read_from(file, byte);
                 break;
             case writeo:
-
-               // open(file, O_RDONLY);
+                file=open(filename, O_RDWR);
                 byte=scan_byte_no();
-                v=scan_version();
-                //write_to(file, byte, new);
+                char inp[1];
+                strcpy(inp, "X");
+                write_to(file, byte, inp);
                 break;
             case list:
-
+                file=open(filename, O_RDONLY);
+                display_locks(file);
                 break;
             case help:
                 display_man();
