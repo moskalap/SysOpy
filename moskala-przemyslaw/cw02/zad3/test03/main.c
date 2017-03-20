@@ -1,13 +1,14 @@
 #include <memory.h>
 #include <fcntl.h>
+#include <zconf.h>
 #include "stdlib.h"
 #include "stdio.h"
 const int BFFR_L =256;
 enum Options {
-    lock_r, unlock_r, lock_w, unlock_w, read, write, list, help, nothing, quit
+    lock_r, unlock_r, lock_w, unlock_w, reado, writeo, list, help, nothing, quit
 };
-enum Version{repeat, normal, nothing};
-enum Permission {write, read};
+enum Version{repeat, normal, nothingv};
+enum Permission {writep, readp};
 void display_man(){
     printf("\nUse:");
     printf("\n\t-lr\tfor locking read mode on byte,");
@@ -42,12 +43,12 @@ enum Version scan_version(){
 
 }
 enum Options decode(char input[BFFR_L]){
-    if(strcmp(input,"-lr") ==0) return lock_r;
-    if(strcmp(input,"-ur") ==0) return unlock_r;
-    if(strcmp(input,"-lw") ==0) return lock_w;
-    if(strcmp(input,"-uw") ==0) return unlock_w;
-    if(strcmp(input,"-r") ==0) return read;
-    if(strcmp(input,"-w") ==0) return write;
+    if(strcmp(input,"-lr\n") ==0) return lock_r;
+    if(strcmp(input,"-ur\n") ==0) return unlock_r;
+    if(strcmp(input,"-lw\n") ==0) return lock_w;
+    if(strcmp(input,"-uw\n") ==0) return unlock_w;
+    if(strcmp(input,"-r\n") ==0) return reado;
+    if(strcmp(input,"-w\n") ==0) return writeo;
     if(strcmp(input,"-l\n") ==0) return list;
     if(strcmp(input,"-help\n") ==0) return help;
     if(strcmp(input,"-quit\n") ==0) return quit;
@@ -58,14 +59,14 @@ void lock(int file, int byte, enum Permission permission, enum Version v){
    switch (v){
        case repeat:
            switch(permission){
-               case write:
+               case writep:
                     opt->l_type=F_WRLCK;
                     opt->l_whence=SEEK_SET;
                     opt->l_len=1;
                     opt->l_start=byte;
                     fcntl(file, F_SETLKW, opt);
                    break;
-               case read:
+               case readp:
                    opt->l_type=F_RDLCK;
                    opt->l_whence=SEEK_SET;
                    opt->l_len=1;
@@ -76,14 +77,14 @@ void lock(int file, int byte, enum Permission permission, enum Version v){
            break;
        case normal:
            switch(permission){
-               case write:
+               case writep:
                    opt->l_type=F_WRLCK;
                    opt->l_whence=SEEK_SET;
                    opt->l_len=1;
                    opt->l_start=byte;
                    fcntl(file, F_SETLK, opt);
                    break;
-               case read:
+               case readp:
                    opt->l_type=F_RDLCK;
                    opt->l_whence=SEEK_SET;
                    opt->l_len=1;
@@ -100,7 +101,7 @@ void unlock(int file, int byte, enum Permission permission, enum Version v){
     switch(v){
         case repeat:
             switch(permission){
-                case write:
+                case writep:
                     opt->l_type=F_UNLCK;
                     opt->l_whence=SEEK_SET;
                     opt->l_len=1;
@@ -108,7 +109,7 @@ void unlock(int file, int byte, enum Permission permission, enum Version v){
                     fcntl(file, F_SETLKW, opt);
 
                     break;
-                case read:
+                case readp:
                     opt->l_type=F_UNLCK;
                     opt->l_whence=SEEK_SET;
                     opt->l_len=1;
@@ -122,14 +123,14 @@ void unlock(int file, int byte, enum Permission permission, enum Version v){
             break;
         case normal:
             switch(permission){
-                case write:
+                case writep:
                     opt->l_type=F_UNLCK;
                     opt->l_whence=SEEK_SET;
                     opt->l_len=1;
                     opt->l_start=byte;
                     fcntl(file, F_SETLK, opt);
                     break;
-                case read:
+                case readp:
                     opt->l_type=F_UNLCK;
                     opt->l_whence=SEEK_SET;
                     opt->l_len=1;
@@ -161,51 +162,53 @@ void interact(char filename[BFFR_L]){
         fgets(input, BFFR_L, stdin);
         printf(input);
         switch(decode(input)){
-            case lock_r:
-                open(file, O_RDONLY);
+                case lock_r:
+                file=open(filename, O_RDONLY);
                 byte=scan_byte_no();
                 v=scan_version();
-                lock(file, byte, read, v);
+                lock(file, byte, readp, v);
 
                 break;
             case unlock_r:
-                open(file, O_RDONLY);
+                open(filename, O_RDONLY);
                 byte=scan_byte_no();
                 v=scan_version();
-                unlock(file, byte, read, v);
+                unlock(file, byte, readp, v);
                 break;
             case lock_w:
-                open(file, O_RDONLY);
+                open(filename, O_RDONLY);
                 byte=scan_byte_no();
                 v=scan_version();
-                lock(file, byte, write, v);
+                lock(file, byte, writep, v);
                 break;
             case unlock_w:
-                open(file, O_RDONLY);
+                open(filename, O_RDONLY);
                 byte=scan_byte_no();
                 v=scan_version();
-                unlock(file, byte, write, v);
+                unlock(file, byte, writep, v);
                 break;
-            case read:
+            case reado:
 
-                open(file, O_RDONLY);
-                byte=scan_byte_to_read();
-                read_from(file, byte);
+                open(filename, O_RDONLY);
+                byte=scan_byte_no();
+                //read_from(file, byte);
 
                 break;
-            case write:
+            case writeo:
 
-                open(file, O_RDONLY);
-                byte=scan_byte_to_write();
+               // open(file, O_RDONLY);
+                byte=scan_byte_no();
                 v=scan_version();
-                write_to(file, byte, new);
+                //write_to(file, byte, new);
                 break;
             case list:
+
                 break;
             case help:
                 display_man();
                 break;
             case quit:
+                close(file);
                 run=0;
                 break;
 
@@ -217,7 +220,7 @@ void interact(char filename[BFFR_L]){
     }
 }
 int main(int argc, char * argv[]){
-
+interact("./readme.md");
 
 
 }
