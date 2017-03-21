@@ -12,7 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e2551c56-8ea9-48dc-b5ad-01a5c02f62e6" name="Default" comment="" />
-    <ignored path="$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/cmake-build-debug/" />
+    <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -30,7 +30,7 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c" />
+        <option value="$PROJECT_DIR$/main.c" />
       </list>
     </option>
   </component>
@@ -273,16 +273,16 @@
       <updated>1489859998082</updated>
       <workItem from="1489859999685" duration="3963000" />
       <workItem from="1489914704639" duration="16437000" />
-      <workItem from="1490106598360" duration="8832000" />
+      <workItem from="1490106598360" duration="9304000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="29232000" />
+    <option name="totallyTimeSpent" value="29704000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="30" width="1920" height="1050" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2511949" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -314,31 +314,31 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c</url>
+          <url>file://$PROJECT_DIR$/main.c</url>
           <line>132</line>
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c</url>
+          <url>file://$PROJECT_DIR$/main.c</url>
           <line>112</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c</url>
+          <url>file://$PROJECT_DIR$/main.c</url>
           <line>108</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c</url>
+          <url>file://$PROJECT_DIR$/main.c</url>
           <line>73</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c</url>
+          <url>file://$PROJECT_DIR$/main.c</url>
           <line>54</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c</url>
+          <url>file://$PROJECT_DIR$/main.c</url>
           <line>76</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
@@ -348,7 +348,7 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/CMakeLists.txt">
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -356,7 +356,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c">
+    <entry file="file://$PROJECT_DIR$/main.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -364,7 +364,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/CMakeLists.txt">
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -372,7 +372,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c">
+    <entry file="file://$PROJECT_DIR$/main.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -380,7 +380,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/CMakeLists.txt">
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -388,7 +388,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/clonefromgithub/sys-op-tasks/moskala-przemyslaw/cw02/zad2/test02/main.c">
+    <entry file="file://$PROJECT_DIR$/main.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="237">
           <caret line="101" column="19" lean-forward="true" selection-start-line="101" selection-start-column="19" selection-end-line="101" selection-end-column="19" />
