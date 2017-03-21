@@ -1,3 +1,0 @@
-/home/przemek/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/lab01/lib/static/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/przemek/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/lab01/lib/static/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/przemek/Dokumenty/Semestr IV/SysOpy/c/sys-op-tasks/lab01/lib/static/cmake-build-debug/CMakeFiles/static.dir
