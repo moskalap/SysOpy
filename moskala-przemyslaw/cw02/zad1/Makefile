@@ -1,6 +1,6 @@
 CMP = gcc
 all: fio
-ls:
+fio:
 	$(CMP) fio.c -o fio
 
 
