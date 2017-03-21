@@ -111,17 +111,12 @@ int main(int argc, char* argv[]){
         strcpy(a,pah);
         if(strcmp(option, "-nftw")==0){
             search_nftw(atoi(argv[3]), pah);
-            printf("\nSearching using nftw\n");
-            printf(pah);
-            printf("\n");
-            printf(argv[3]);
+
         }else {
             if (strcmp(option, "-recur")==0){
                 MAX=atoi(argv[3]);
                 search(pah, NULL, atoi(argv[3]));
-                printf("\nSearching using recur\n");
-                printf(pah);
-                printf(argv[3]);
+
             }
             else display_man();
         }
