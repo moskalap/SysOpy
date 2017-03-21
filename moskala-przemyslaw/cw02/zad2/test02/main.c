@@ -21,6 +21,7 @@
 
 
 const char* SLASH = "/";
+int MAX=0;
 
 
 void getFileCreationTime(char *path) {
@@ -98,7 +99,7 @@ if(stat(root,&fileStat) < 0) printf("err");
 static int display_info(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf){
 
 
-
+    if(sb->st_size>MAX) return 0;
     printf( (S_ISDIR(sb->st_mode)) ? "d" : "-");
     printf( (sb->st_mode & S_IRUSR) ? "r" : "-");
     printf( (sb->st_mode & S_IWUSR) ? "w" : "-");
@@ -121,10 +122,10 @@ static int display_info(const char *fpath, const struct stat *sb, int tflag, str
 }
 
 void search_nwfd(int argc, char *path){
+    MAX=argc;
     int flags = 0;
     flags |= FTW_DEPTH;
     flags |= FTW_PHYS;
-
     if (nftw(path, display_info, 20, flags)
         == -1) {
         perror("nftw");
@@ -133,20 +134,38 @@ void search_nwfd(int argc, char *path){
     exit(EXIT_SUCCESS);
 }
 
-
+void display_man(){
+    printf("\nUse:\n\t-nftw\t'directory-path'\tMAX_BYTES\t for search using nftw(),\n\t-recur\t'directory-path'\tMAX_BYTES\t for search using recuresion.\n");
+}
 
 int main(int argc, char* argv[]){
 
 
-    char* pah=argv[1];
-    char a[1024];
-    strcpy(a,pah);
-    //getPermission(pah);
-    //search (a,NULL, 2);
-    search_nwfd(2,pah);
+    if(argc<4){
+       display_man();
+    }else{
+        char *option=argv[1];
+        char *pah=argv[2];
+        char a[1024];
+        strcpy(a,pah);
+        if(strcmp(option, "-nftw")==0){
+            search_nwfd(atoi(argv[3]), pah);
+            printf("\nSearching using nftw\n");
+            printf(pah);
+            printf("\n");
+            printf(argv[3]);
+        }else {
+            if (strcmp(option, "-recur")==0){
+                //search(pah, NULL, atoi(argv[3]));
+                printf("\nSearching using recur\n");
+                printf(pah);
+                printf(argv[3]);
+            }
+            else display_man();
+        }
 
 
-
+    }
 
 
 
