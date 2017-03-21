@@ -38,9 +38,9 @@ void generate_records(char *outputFileName, int record_size, int records) {
                       S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IWOTH | S_IXOTH);
     int input = open(RANDOM, O_RDONLY);
     char byte;
-
-    for (int record = 0; record < records; record++) {
-        for (int b = 0; b < record_size; b++) {
+    int record, b;
+    for (record = 0; record < records; record++) {
+        for (b = 0; b < record_size; b++) {
             read(input, &byte, sizeof(byte));
             write(output, &byte, sizeof(byte));
 
@@ -230,8 +230,9 @@ int compare_s(int file, int index1, int index2, int recordSize) {
  * @param recordSize
  */
 void bubble_sort_l(FILE *file, int records, int recordSize) {
-    for (int i = 0; i < records; i++)
-        for (int j = 0; j < records - i - 1; j++) {
+    int i,j;
+    for (i = 0; i < records; i++)
+        for (j = 0; j < records - i - 1; j++) {
             if (compare_l(file, j, j + 1, recordSize) > 0)
                 swap_l(file, j, j + 1, recordSize);
         }
@@ -245,8 +246,9 @@ void bubble_sort_l(FILE *file, int records, int recordSize) {
  * @param recordSize
  */
 void bubble_sort_s(int file, int records, int recordSize) {
-    for (int i = 0; i < records; i++)
-        for (int j = 0; j < records - i - 1; j++) {
+    int i,j;
+    for (i = 0; i < records; i++)
+        for (j = 0; j < records - i - 1; j++) {
             if (compare_s(file, j, j + 1, recordSize) > 0)
                 swap_s(file, j, j + 1, recordSize);
         }
@@ -328,7 +330,8 @@ enum Functions descript_function(char *function) {
 Option *parseOption(int a, char *argv[]) {
     Option *option = malloc(sizeof(option));
     enum Arguments arg;
-    for (int i = 1; i < a; i++) {//-file -u -fsize -rsize -
+    int i;
+    for (i = 1; i < a; i++) {//-file -u -fsize -rsize -
         arg = descript(argv[i]);
         switch (arg) {
             case file:

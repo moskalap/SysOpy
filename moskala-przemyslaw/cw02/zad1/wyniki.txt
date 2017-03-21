@@ -1,0 +1,185 @@
+Wygenerowano pliki:
+-rw-r--r-x 1 przemek przemek  40M mar 21 21:18 4096bytes10000cp.txt
+-rw-r--r-x 1 przemek przemek  40M mar 21 21:18 4096bytes10000.txt
+-rw-r--r-x 1 przemek przemek 4,0M mar 21 21:04 4096bytes1000cp.txt
+-rw-r--r-x 1 przemek przemek 4,0M mar 21 21:04 4096bytes1000.txt
+-rw-r--r-x 1 przemek przemek  49K mar 21 21:06 4bytes10000cp.txt
+-rw-r--r-x 1 przemek przemek  49K mar 21 21:06 4bytes10000.txt
+-rw-r--r-x 1 przemek przemek 4,9K mar 21 21:03 4bytes1000cp.txt
+-rw-r--r-x 1 przemek przemek 4,9K mar 21 21:03 4bytes1000.txt
+-rw-r--r-x 1 przemek przemek 4,9M mar 21 21:08 512bytes10000cp.txt
+-rw-r--r-x 1 przemek przemek 4,9M mar 21 21:08 512bytes10000.txt
+-rw-r--r-x 1 przemek przemek 501K mar 21 21:03 512bytes1000cp.txt
+-rw-r--r-x 1 przemek przemek 501K mar 21 21:03 512bytes1000.txt
+-rw-r--r-x 1 przemek przemek  79M mar 21 21:32 8192bytes10000cp.txt
+-rw-r--r-x 1 przemek przemek  79M mar 21 21:32 8192bytes10000.txt
+-rw-r--r-x 1 przemek przemek 7,9M mar 21 21:04 8192bytes1000cp.txt
+-rw-r--r-x 1 przemek przemek 7,9M mar 21 21:04 8192bytes1000.txt
+
+
+shuffle 4bytes1000 version l
+
+real	0m0.006s
+user	0m0.004s
+sys	0m0.000s
+shuffle 4bytes1000 version s
+
+real	0m0.005s
+user	0m0.000s
+sys	0m0.000s
+sort 4bytes1000 version l
+
+real	0m0.998s
+user	0m0.284s
+sys	0m0.708s
+sort 4bytes1000 version s
+
+real	0m0.407s
+user	0m0.084s
+sys	0m0.320s
+shuffle 512bytes1000 version l
+
+real	0m0.006s
+user	0m0.000s
+sys	0m0.004s
+shuffle 512bytes1000 version s
+
+real	0m0.004s
+user	0m0.000s
+sys	0m0.000s
+sort 512bytes1000 version l
+
+real	0m1.074s
+user	0m0.312s
+sys	0m0.744s
+sort 512bytes1000 version s
+
+real	0m0.440s
+user	0m0.068s
+sys	0m0.368s
+shuffle 4096bytes1000 version l
+
+real	0m0.008s
+user	0m0.000s
+sys	0m0.004s
+shuffle 4096bytes1000 version s
+
+real	0m0.007s
+user	0m0.004s
+sys	0m0.004s
+sort 4096bytes1000 version l
+
+real	0m3.610s
+user	0m0.848s
+sys	0m2.744s
+sort 4096bytes1000 version s
+
+real	0m0.865s
+user	0m0.064s
+sys	0m0.796s
+shuffle 8192bytes1000 version l
+
+real	0m0.016s
+user	0m0.000s
+sys	0m0.012s
+shuffle 8192bytes1000 version s
+
+real	0m0.009s
+user	0m0.000s
+sys	0m0.008s
+sort 8192bytes1000 version l
+
+real	0m4.863s
+user	0m0.948s
+sys	0m3.912s
+sort 8192bytes1000 version s
+
+real	0m1.202s
+user	0m0.052s
+sys	0m1.144s
+shuffle 4bytes10000 version l
+
+real	0m0.047s
+user	0m0.008s
+sys	0m0.036s
+shuffle 4bytes10000 version s
+
+real	0m0.030s
+user	0m0.000s
+sys	0m0.028s
+sort 4bytes10000 version l
+
+real	1m36.266s
+user	0m22.184s
+sys	1m13.800s
+sort 4bytes10000 version s
+
+real	0m38.577s
+user	0m5.944s
+sys	0m32.624s
+shuffle 512bytes10000 version l
+
+real	0m0.054s
+user	0m0.000s
+sys	0m0.052s
+shuffle 512bytes10000 version s
+
+real	0m0.038s
+user	0m0.008s
+sys	0m0.028s
+sort 512bytes10000 version l
+
+real	1m52.045s
+user	0m28.960s
+sys	1m22.484s
+sort 512bytes10000 version s
+
+real	0m50.799s
+user	0m6.328s
+sys	0m44.408s
+shuffle 4096bytes10000 version l
+
+real	0m0.084s
+user	0m0.028s
+sys	0m0.052s
+shuffle 4096bytes10000 version s
+
+real	0m0.074s
+user	0m0.004s
+sys	0m0.068s
+sort 4096bytes10000 version l
+
+real	6m37.732s
+user	1m26.236s
+sys	5m9.264s
+sort 4096bytes10000 version s
+
+real	1m34.431s
+user	0m6.728s
+sys	1m27.592s
+shuffle 8192bytes10000 version l
+
+real	0m0.112s
+user	0m0.016s
+sys	0m0.092s
+shuffle 8192bytes10000 version s
+
+real	0m0.117s
+user	0m0.012s
+sys	0m0.100s
+sort 8192bytes10000 version l
+
+real	9m10.488s
+user	1m34.456s
+sys	7m30.356s
+sort 8192bytes10000 version s
+
+real	2m25.257s
+user	0m7.140s
+sys	2m17.872s
+
+Program działa szybciej w trybie 's', w trybie 'l' większość czasu to czas systemowy.
+
+
+
+
