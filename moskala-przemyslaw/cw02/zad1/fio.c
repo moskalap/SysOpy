@@ -35,7 +35,7 @@ enum Arguments {
  */
 void generate_records(char *outputFileName, int record_size, int records) {
     int output = open(outputFileName, O_CREAT | O_APPEND | O_WRONLY,
-                      S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IWOTH | S_IXOTH);
+                      S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IWOTH );
     int input = open(RANDOM, O_RDONLY);
     char byte;
     int record, b;

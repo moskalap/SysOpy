@@ -26,7 +26,7 @@ int MAX=0;
 
 static int display_info(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf){
 
-    if(sb->st_size>MAX) return 0;
+    if(sb->st_size>MAX && sb->st_mode!=S_IFDIR) return 0;
     printf( (S_ISDIR(sb->st_mode)) ? "d" : "-");
     printf( (sb->st_mode & S_IRUSR) ? "r" : "-");
     printf( (sb->st_mode & S_IWUSR) ? "w" : "-");
