@@ -1,4 +1,5 @@
 #zmiennaA 531
+ls -las
 ./test zmiennaA
 #zmiennaA
 ./test zmiennaA

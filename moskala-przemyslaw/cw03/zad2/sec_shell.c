@@ -42,7 +42,7 @@ void execute_program(char* args[MAX_ARGS], struct rlimit * cpu, struct rlimit * 
         else{
             pid = wait3(&status, 0, &r);
             if(WEXITSTATUS(status) != 0){
-                fprintf(stderr, "Error while executing command %s", args[0]);
+                printf("Error while executing command %s", args[0]);
                 exit(WEXITSTATUS(status));
             }
             struct rusage time1;
@@ -106,8 +106,7 @@ FILE * parse_args(int argc, char * argv[], struct rlimit *cpu, struct rlimit* me
         printf(ERR_NOARG);
         return NULL;
     }
-    //cpu->rlim_cur= atoi(argv[2]);
-    //mem->rlim_cur= atoi(argv[3]);
+
     cpu->rlim_max= atoi(argv[2]);
     mem->rlim_max= atoi(argv[3]);
 
