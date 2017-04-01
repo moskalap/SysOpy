@@ -33,7 +33,6 @@ int main(void) {
     memset(&act,'\0',sizeof(act));
     act.sa_sigaction=&hdl;
     act.sa_flags=SA_SIGINFO;
-
     sigaction(SIGINT,&act, NULL);
 
 
