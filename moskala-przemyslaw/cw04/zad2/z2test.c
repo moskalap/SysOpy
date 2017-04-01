@@ -14,7 +14,7 @@ void simulate_work() {
     sleep(1);
 }
 void recieve(int sig, siginfo_t *siginfo, void *context) {
-    printf("%d recieved sigusrf from %d", getpid(), siginfo->si_pid);
+    printf("%d recieved sigusrf from %d\n", getpid(), siginfo->si_pid);
 
 }
 
