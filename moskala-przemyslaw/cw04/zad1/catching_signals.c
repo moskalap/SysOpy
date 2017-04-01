@@ -1,17 +1,25 @@
 #include<stdio.h>
 #include<signal.h>
 #include<unistd.h>
+#include <memory.h>
+#include <stdlib.h>
 
 int delta = 1;
 int i;
+int run=1;
 
 void sig_handler(int signo) {
-    if (signo == SIGINT) {
-        printf("Recievied SIGINT\n");
-        _exit(0);
-    } else if (signo == SIGTSTP) {
+
+  if (signo == SIGTSTP) {
         delta = delta * (-1);
     }
+
+
+}
+void hdl(int sig, siginfo_t *siginfo, void *context) {
+    printf("recieved sigint");
+
+    exit(0);
 
 
 }
@@ -21,8 +29,16 @@ int main(void) {
     if (signal(SIGTSTP, sig_handler) == SIG_ERR)
         printf("\ncan't catch SIGTstOP\n");
     signal(SIGINT, sig_handler);
-    // A long long wait so that we can easily issue a signal to this process
-    while (1) {
+    struct sigaction act;
+    memset(&act,'\0',sizeof(act));
+    act.sa_sigaction=&hdl;
+    act.sa_flags=SA_SIGINFO;
+
+    sigaction(SIGINT,&act, NULL);
+
+
+
+    while (run) {
         for (i; i < 26 && i >= 0; i += delta) {
             printf("%c \n", 'a' + i);
             sleep(1);
