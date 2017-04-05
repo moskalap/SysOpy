@@ -4,117 +4,231 @@
 #include <wait.h>
 #include <memory.h>
 #include <time.h>
-#include <bits/siginfo.h>
 
 //
 // Created by przemek on 30.03.17.
 //
+int run=1;
+int N;
+int K;
+int ended=0;
 pid_t PPID;
 int permision=0;
-int K;
-int RECIEVED=0;
-pid_t * waiters;
-
+int k_reached=0;
+int recieved=-1;
+pid_t * pids;
+sigset_t new;
+sigset_t old;
 
 void simulate_work(){
     printf("\n %d working\n", getpid());
-    sleep(1);
+    sleep(10);
+}
+void accept(pid_t pid){
+    printf("%d Sent permission(SIGUSR2) to %d \n", PPID,pid);
+    kill(pid, SIGUSR2);
+
 }
 
-void recieve_sigrt(int sig, siginfo_t *siginfo, void* context){
-    printf(">Recieved SIGRT%d from PID%d\n", siginfo->si_signo, siginfo->si_pid);
-}
-void recieve_request(int sig, siginfo_t *siginfo, void *context) {
-    printf(">Recieved SIGUSR1 (request) from %d\n", getpid(), siginfo->si_pid);
-    waiters[RECIEVED]=siginfo->si_pid;
-    RECIEVED++;
-    if(RECIEVED==K){
-        for( int i = 0; i<K; i++)
-            send_permission(waiters[i]);
+
+void parent_handler(int sig, siginfo_t *siginfo, void* context){
+
+    int sign=siginfo->si_signo;
+    switch (sign){
+        case SIGUSR1: //request
+            //printf("Got SIGUSR\n");
+            recieved++;
+            if(k_reached){
+                accept(siginfo->si_pid);
+            }else{
+                if(recieved==K) {
+                    k_reached=1;
+                    int j=0;
+                    for( j ; j<K; j++)
+                        accept(pids[j]);
+                    accept(siginfo->si_pid);
+                }
+                else{
+                    pids[recieved]=siginfo->si_pid;
+                    printf("Add to wait %d \n",siginfo->si_pid);
+                }
+
+            }
+
+
+            break;
+        case SIGINT:
+            printf("Recieved SIGINT");
+            for (int i =0 ; i<N; i++){
+                kill(pids[i], SIGINT);
+            }
+
+            break;
+        case SIGCHLD:
+            ended++;
+            printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%d exited with status %d<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n", siginfo->si_pid, siginfo->si_status);
+            if(ended==N) run=0;
+            break;
+
+        default:
+            if(sign>SIGRTMIN && sign<SIGRTMAX)
+                printf("Recieved SIGRT%d from %d.\n", sig-SIGRTMIN, siginfo->si_pid);
+            break;
+
+
     }
-    if(RECIEVED>K) send_permission(siginfo->si_pid);
-
-
 }
-void send_permission(pid_t pid){ //SIGUSR2 -perm
-kill(pid, SIGUSR2);
-}
-void get_permission(int signo){
-    if (signo == SIGUSR2) {
-        //printf("%d recieved permission\n",getpid());
+void child_handler(int sig, siginfo_t *siginfo, void* context){
+    int sign = siginfo->si_signo;
+    switch(sign){
+        case SIGUSR2://RECIEVED PERM
+            printf("%d recieved permision.\n", getpid());
+
+            break;
+        default:
+            break;
+
     }
 }
-void send_random_signal(pid_t pid){
-    srand(time(NULL));
-    int i = rand()%(SIGRTMAX-SIGRTMIN) + SIGRTMIN;
-    //printf("wysyłam %d do rod\n",i);
-    kill(pid, i);
-}
 
-void send_request() {
-    printf("PID  %d sending request to PPID: %d\n", getpid(), getppid());
-    //kill(getppid(),SIGUSR1);  ?logout
+
+
+
+
+
+void send_request(){
+    printf("\t%d sent request(SIGUSR1) to %d\n",getpid(),PPID);
+
+
     kill(PPID,SIGUSR1);
 }
+void send_random(){
+    // srand(time(NULL));
+    int i = rand()%(SIGRTMAX-SIGRTMIN) + SIGRTMIN;
+    //printf("wysyłam %d do rod\n",i);
+    kill(PPID, i);
+}
+
+
+void usrhndl (int signo) {
+    printf("recievied");
+    if (signo == SIGUSR1) {
+        printf("AAA");
+        //
+        // delta = delta * (-1);
+    }
+
+
+}
+
+
+void do_child_things(){
+
+
+    //PPID=getppid();
+    srand(getpid());
+    //PPID=getppid();
+
+    printf("im %d of %d\nStarting work..(set ppid %d)\n",getpid(),getppid(),PPID);
+
+    int r=rand()%10+1;
+    sleep(r);
+    //send_request();
+
+    time_t start;
+    time(&start);
+    printf("%d konccze sie %d \n", getpid(),r);
+    //send_random_signal(PPID);
+    sleep(2);
+    time_t end;
+    time(&end);
+    int a=(int) difftime(end,start);
+    exit((int) difftime(end,start));
+
+
+
+
+}
+
+
+
 
 void create_children(int n) {
-    struct sigaction act;
-    pid_t pids[n];
-    int status[n];
-    struct sigaction rtact;
-    memset(&act,'\0',sizeof(act));
-    memset(&rtact,'\0',sizeof(act));
-    act.sa_sigaction=&recieve_request;
-    rtact.sa_sigaction=&recieve_sigrt;
-    act.sa_flags=rtact.sa_flags=SA_SIGINFO;
-    printf("[dad] pid %d\n", getpid());
-    int i;
-
-    for (i = SIGRTMIN; i < SIGRTMAX; i++)
-        sigaction(i, &rtact, NULL);
-
+    PPID=getpid();
     for (int i = 0; i < n; i++) {
         pid_t pid = fork();
         if (pid == 0) {
+            srand(getpid());
+            int r = rand()%10 +1;
 
-            simulate_work();
+            printf("\tChild%d (of %d) will be working fro %d sec..\n", getpid(),PPID,r);
+            sleep(r);
             send_request();
-            time_t start=clock();
-            pause();
-            printf("%d konccze sie\n", getpid());
-            send_random_signal(PPID);
-            time_t end=clock();
-            int a=(int) difftime(end,start);
-            printf("%d konccze sie z czasem %d \n", getpid(),a);
+            struct timespec tstart={0,0}, tend={0,0};
+            clock_gettime(CLOCK_MONOTONIC, &tstart);
 
-            exit((int) difftime(end,start));
+            pause();
+
+            send_random();
+
+            clock_gettime(CLOCK_MONOTONIC, &tend);
+            double dtime = (((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec))*10000;
+            //printf("some_long_computation took about %.5f miliseconds\n", dtime );
+            exit((int)dtime);
+
         } else {
             if (pid>0) {
-                pids[i]=pid;
 
-                sigaction(SIGUSR1,&act, NULL);
-                waitpid(pids[i],&status[i],0);
-                if(WIFEXITED(status[i])){
-                    printf("%d exited with%d\n", pids[i], WIFEXITED(status[i]));
-                }
+                pids[i]=pid;
+                //printf("parent of %d \n", pid);
+
+
+
+
+
             }
 
         }
     }
+    //sleep(20);
+    wait(NULL);
+
+    printf("end");
 
 
 }
 
 
 int main(int argc, char *argv[]) {
-    srand(time (NULL));
+
+    struct sigaction parent;
+    struct sigaction children;
+    memset(&parent,'\0',sizeof(parent));
+    memset(&children,'\0',sizeof(children));
+    parent.sa_sigaction=&parent_handler;
+    children.sa_sigaction=&child_handler;
+    parent.sa_flags=children.sa_flags=SA_SIGINFO;
+    sigemptyset(&parent.sa_mask);
+    sigaddset(&parent.sa_mask, SIGUSR1);
+    int s = SIGRTMIN;
+    for(s; s<SIGRTMAX; s++)
+        sigaddset(&parent.sa_mask, s );
+    sigaddset(&parent.sa_mask, SIGCHLD );
+
+    sigaction(SIGCHLD,&parent,NULL);
+    sigaction(SIGUSR1,&parent,NULL);
+    sigaction(SIGUSR2,&children,NULL);
+    s = SIGRTMIN;
+    for(s; s<SIGRTMAX; s++)
+        sigaction(s,&parent,NULL);
+    //signal(SIGUSR1, usrhndl);
+
+    N=atoi(argv[1]);
+    pids=malloc(N*sizeof(pid_t));
     K=atoi(argv[2]);
-    waiters=malloc(sizeof(pid_t)*K);
-    signal(SIGUSR2, get_permission);
     PPID=getpid();
-
-
-
+    printf("PPID %d\n",PPID);
     create_children(atoi(argv[1]));
-    while (1);
+
+    while(run);
 }
