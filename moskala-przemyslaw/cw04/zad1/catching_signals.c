@@ -6,22 +6,18 @@
 
 int delta = 1;
 int i;
-int run=1;
+int run = 1;
 
 void sig_handler(int signo) {
 
-  if (signo == SIGTSTP) {
+    if (signo == SIGTSTP) {
         delta = delta * (-1);
     }
-
-
 }
+
 void hdl(int sig, siginfo_t *siginfo, void *context) {
     printf("recieved sigint");
-
     exit(0);
-
-
 }
 
 int main(void) {
@@ -30,11 +26,10 @@ int main(void) {
         printf("\ncan't catch SIGTstOP\n");
     signal(SIGINT, sig_handler);
     struct sigaction act;
-    memset(&act,'\0',sizeof(act));
-    act.sa_sigaction=&hdl;
-    act.sa_flags=SA_SIGINFO;
-    sigaction(SIGINT,&act, NULL);
-
+    memset(&act, '\0', sizeof(act));
+    act.sa_sigaction = &hdl;
+    act.sa_flags = SA_SIGINFO;
+    sigaction(SIGINT, &act, NULL);
 
 
     while (run) {
