@@ -91,11 +91,6 @@ void child_handler(int sig, siginfo_t *siginfo, void* context){
     }
 }
 
-
-
-
-
-
 void send_request(){
     printf("\t%d sent request(SIGUSR1) to %d\n",getpid(),PPID);
 
@@ -103,53 +98,10 @@ void send_request(){
     kill(PPID,SIGUSR1);
 }
 void send_random(){
-    // srand(time(NULL));
     int i = rand()%(SIGRTMAX-SIGRTMIN) + SIGRTMIN;
-    //printf("wysyłam %d do rod\n",i);
+
     kill(PPID, i);
 }
-
-
-void usrhndl (int signo) {
-    printf("recievied");
-    if (signo == SIGUSR1) {
-        printf("AAA");
-        //
-        // delta = delta * (-1);
-    }
-
-
-}
-
-
-void do_child_things(){
-
-
-    //PPID=getppid();
-    srand(getpid());
-    //PPID=getppid();
-
-    printf("im %d of %d\nStarting work..(set ppid %d)\n",getpid(),getppid(),PPID);
-
-    int r=rand()%10+1;
-    sleep(r);
-    //send_request();
-
-    time_t start;
-    time(&start);
-    printf("%d konccze sie %d \n", getpid(),r);
-    //send_random_signal(PPID);
-    sleep(2);
-    time_t end;
-    time(&end);
-    int a=(int) difftime(end,start);
-    exit((int) difftime(end,start));
-
-
-
-
-}
-
 
 
 
@@ -161,7 +113,7 @@ void create_children(int n) {
             srand(getpid());
             int r = rand()%10 +1;
 
-            printf("\tChild%d (of %d) will be working fro %d sec..\n", getpid(),PPID,r);
+            printf("\tChild%d (of %d) will be working for %d sec..\n", getpid(),PPID,r);
             sleep(r);
             send_request();
             struct timespec tstart={0,0}, tend={0,0};
@@ -173,25 +125,19 @@ void create_children(int n) {
 
             clock_gettime(CLOCK_MONOTONIC, &tend);
             double dtime = (((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec))*10000;
-            //printf("some_long_computation took about %.5f miliseconds\n", dtime );
             exit((int)dtime);
 
         } else {
             if (pid>0) {
 
                 pids[i]=pid;
-                //printf("parent of %d \n", pid);
-
-
-
-
 
             }
 
         }
     }
-    //sleep(20);
-    wait(NULL);
+
+
 
     printf("end");
 
