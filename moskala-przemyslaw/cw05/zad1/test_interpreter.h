@@ -1,9 +1,0 @@
-//
-// Created by przemek on 05.04.17.
-//
-
-#ifndef CW04C03_TEST_INTERPRETER_H
-#define CW04C03_TEST_INTERPRETER_H
-
-
-#endif //CW04C03_TEST_INTERPRETER_H

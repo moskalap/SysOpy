@@ -30,6 +30,7 @@ int main(void) {
     act.sa_sigaction = &hdl;
     act.sa_flags = SA_SIGINFO;
     sigaction(SIGINT, &act, NULL);
+    
 
 
     while (run) {
