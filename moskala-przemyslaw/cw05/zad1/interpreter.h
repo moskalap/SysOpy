@@ -12,6 +12,8 @@
 #include "string.h"
 const int MAX_ARGS=20;
 const int MAX_TOKENS=30;
+pid_t START_PROCESS_PID;
+
 
 typedef struct Executable{
 
