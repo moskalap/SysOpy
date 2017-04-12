@@ -98,3 +98,62 @@ int test_string_sending(){
     return(0);
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void execute_all(Pipe *tasks) {
+    pid_t pid;
+    int fd[2];
+
+    becoming_parent:
+    pipe(fd);
+    if (tasks->first) {
+
+        pid = fork();
+        if (pid == 0) {
+
+            pause();
+            exec_token(tasks->first);
+            printf("after");
+            tasks->first = tasks->first->output;
+            goto becoming_parent;
+
+        } else {
+            dup2(fd[1], STDOUT_FILENO);
+            exec_token(tasks->first);
+            kill(pid, SIGALRM); // permission to child for becoming parent
+            waitpid(pid, NULL, NULL);
+            //if (getpid() != START_PROCESS_PID) exit(0);
+        }
+    }
+    while(1);
+
+}
+
+
+
+
+
+
+
+
+
+
+

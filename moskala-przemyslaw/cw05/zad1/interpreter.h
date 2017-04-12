@@ -20,6 +20,7 @@ typedef struct Executable{
     char * program_name;
     char ** args;
     struct Executable * output;
+    struct Executable * input;
 
 
 }Executable;

@@ -1,11 +1,15 @@
 //
 // Created by przemek on 05.04.17.
 //
+int actual = 0;
 
 #include "interpreter.h"
-void sig_handler(int n){
+
+void sig_handler(int n) {
+    //Just a handler for interupt pause();
     return;
 }
+
 /**
  * Creates an arguments as array of strings.
  * @param buff buffer of chars betwen '|'
@@ -45,8 +49,10 @@ Executable *create_executable(char *token) {
  * displays content of executable struct
  * @param e
  */
-void display_executable(Executable *e) {
-    printf("Program name: %s.\n", e->program_name);
+void display_executable(Executable *e, int fd[]) {
+    fprintf(stderr, "Program name: %s.\n", e->program_name);
+    printf("\n PPID %d, PID %d Writing to%d from %d Program name: %s.\n", getppid(), getpid(), fd[1], fd[0],
+           e->program_name);
     int i = 0;
     for (i; i < MAX_ARGS; i++) {
         printf("Arg no %d: %s", i, e->args[i]);
@@ -60,7 +66,7 @@ void display_executable(Executable *e) {
  * @param pipe
  */
 void exec_token(Executable *ex) {
-    if (execv(ex->args[0], ex->args) == -1)
+    if (execvp(ex->args[0], ex->args) == -1)
         fprintf(stderr, "error while executing %s", ex->program_name);
 }
 
@@ -79,9 +85,12 @@ Pipe *create_pipe() {
 void add_executable_to_pipe(Pipe *pipe, Executable *e) {
     if (pipe->n == 0) {
         pipe->first = e;
+        e->input = NULL;
+        e->output = NULL;
         pipe->last = e;
     } else {
         pipe->last->output = e;
+        e->input = pipe->last;
         pipe->last = e;
     }
     pipe->n++;
@@ -103,34 +112,6 @@ void execute_without_redir(Pipe *pipe) {
     }
 }
 
-void execute_all(Pipe * tasks){
-    pid_t pid;
-    int fd[2];
-
-    becoming_parent:
-    pipe(fd);
-
-        pid=fork();
-    if(pid==0){
-        dup2(fd[0],STDIN_FILENO);
-        pause();
-        tasks->first=tasks->first->output;
-        if (tasks && tasks->first) goto becoming_parent;
-
-    }
-    else{
-        dup2(fd[1],STDOUT_FILENO);
-        exec_token(tasks->first);
-        kill(pid, SIGUSR1); // permission to child for becoming parent
-        waitpid(pid, NULL, NULL);
-        if(getpid()!=START_PROCESS_PID) exit(0);
-    }
-
-
-
-
-}
-
 Pipe *build_from_args(char *args) {
     Pipe *pipe = create_pipe();
     char *tmp;
@@ -144,6 +125,7 @@ Pipe *build_from_args(char *args) {
         p = strtok(NULL, "|");
         i++;
 
+
     }
 
     for (int j = 0; j < i; j++) {
@@ -154,12 +136,59 @@ Pipe *build_from_args(char *args) {
     return pipe;
 }
 
+
+void execute_all(Pipe *p) {
+    Executable *task = malloc(sizeof(Executable));
+    task->input = p->last;
+    int n = p->n;
+    int fd[2];
+    pid_t pid;
+    pipe:
+    pipe(fd);
+
+    create:
+    n--;
+    if (task)
+        task = task->input;
+    pid = fork();
+    if (pid == 0) goto child;
+    else goto parent;
+
+    parent:
+    if (getpid() == START_PROCESS_PID) goto interpreter;
+    dup2(fd[0], STDIN_FILENO);
+    close(fd[1]);
+    pause(); // Wait for a SIGALARM from child ( permission to start own task )
+    wait(NULL);
+    kill(getppid(), SIGALRM);  // send permission to parent
+    display_executable(task, fd);
+    exec_token(task);
+    exit(0);
+
+
+    child:
+    if (getppid() != START_PROCESS_PID) dup2(fd[1], STDOUT_FILENO);
+    close(fd[0]);
+
+    if (n >= 1) goto pipe;
+    else kill(getppid(), SIGALRM);
+
+
+    interpreter:
+    wait(NULL);
+    exit(0);
+
+}
+
+
 int main(int argc, char *argv[]) {
-    signal(SIGUSR1, sig_handler);
+    signal(SIGALRM, sig_handler);
+    signal(SIGCHLD, sig_handler);
     START_PROCESS_PID = getpid();
-    char buf[] = "/bin/ls -la -r|/bin/wc";
+
+    char buf[] = "ls -la | grep Makefile | wc | wartownik";
     Pipe *p = build_from_args(buf);
-    //execute_without_redir(p);
+
     execute_all(p);
 
 }
