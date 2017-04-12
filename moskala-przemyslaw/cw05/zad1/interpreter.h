@@ -11,6 +11,7 @@
 #include <wait.h>
 #include "string.h"
 const int MAX_ARGS=20;
+const int MAX_TOKENS=30;
 
 typedef struct Executable{
 
@@ -25,11 +26,12 @@ typedef struct Executable{
 typedef struct Pipe{
     Executable * first;
     Executable * last;
+    int n;
 }Pipe;
 
 Executable * create_executable(char* buff);
 Pipe * create_pipe();
-void add_executable_to_pipes(Executable * executable, Pipe * pipe);
+void add_executable_to_pipe(Pipe * pipe, Executable * executable);
 
 
 #endif //CW04C03_TEST_INTERPRETER_H
