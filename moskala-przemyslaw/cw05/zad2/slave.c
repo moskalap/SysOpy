@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
     else{
         char PATH[100];
         strcpy(PATH,argv[1]);
-        int pipe=open("smiesznyplik.txt", O_CREAT|O_APPEND|O_WRONLY,S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IWOTH);
+        int pipe=open("example", O_CREAT|O_APPEND|O_WRONLY,S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IWOTH);
         if(pipe<0) {
             fprintf(stderr, "error while opening pipe\n");
             EXIT_FAILURE;
