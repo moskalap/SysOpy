@@ -5,6 +5,15 @@
 #ifndef CW05Z02_SLAVE_H
 #define CW05Z02_SLAVE_H
 
+#include <fcntl.h>
+#include <stdlib.h>
+#include <time.h>
+#include "slave.h"
+#include<stdio.h>
+#include<complex.h>
+#include<math.h>
+#include <zconf.h>
+#include <string.h>
 
 typedef struct Point{
     double x;

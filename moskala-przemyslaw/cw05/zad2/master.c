@@ -1,82 +1,108 @@
 //
 // Created by przemek on 12.04.17.
 //
-int BFRL=50;
-
+int BFRL = 50;
+int GL;
 
 #include "master.h"
-#include <sys/types.h>
-#include  <sys/stat.h>
-#include <stdlib.h>
-#include <string.h>
-#include <zconf.h>
-#include <fcntl.h>
-int scale_x(double x, int R){ //x <- -2 1
-                                //res = [0,R]
-    int res;
-    int ratio = 300/R;
-    x=x+2; //x<-0,3
-    x=x*100;
-    x=x/300;
-    x=x*R;
-    return (int)x;
+
+
+int scale_x(double x, int R) { //x <
+    x = x + 2; //x<-0,3
+
+    x = x / 3;
+    x = x * R;
+    return (int) x;
 
 }
-int scale_y(double y, int R){ //x <- -2 1
-                                //res = [0,R]
-    int res;
-    int ratio = 200/R;
-    y=y+1;//x<-0,2
-    y=y*100;
-    y=y/200;
-    y = y*R;
+
+int scale_y(double y, int R) {
+    y = y + 1;//x<-0,2
+
+    y = y / 2;
+    y = y * R;
     return (int) y;
 
 }
-void scale(char * buff, int R){
-    //r -2 1
-    //i -1 1
+
+void scale(char *buff, int R, int **T) {
+
     int scaled_x, scaled_y;
     double x = atof(strtok(buff, " "));
-    double y =atof( strtok(NULL, " "));
+    double y = atof(strtok(NULL, " "));
     int i = atoi(strtok(NULL, " "));
-    scaled_x = scale_x(x,R);
-    scaled_y = scale_y(y,R);
-    printf("%f %f %i-> %d %d %d\n",x,y,i,scaled_x,scaled_y,i);
+    scaled_x = scale_x(x, R);
+    scaled_y = scale_y(y, R);
+    T[scaled_x][scaled_y] = i;
+
 
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[]) {
     char PATH[50];
     char buff[50];
 
     int fd;
-    dev_t dev;
-    int   status;
-    strcpy(PATH,argv[1]);
-    unlink(PATH);
-    if(argc<2) {
+
+
+
+    if (argc < 2) {
         printf("usage [FIFO_NAME] [R]\n");
         EXIT_FAILURE;
-    }else{
-        int R=atoi(argv[2]);
-        int T[R][R];
+    } else {
+        int R = atoi(argv[2]);
+        strcpy(PATH, argv[1]);
+        unlink(PATH);
 
-        int fifo=mkfifo(PATH, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
-        sleep(1);
-        if(fifo == 0){
-            fd=open(PATH, O_RDONLY);
-            if(fd<0){
+        int **T;
+
+        T = malloc(R * sizeof(int *));
+        for (int i = 0; i < R; i++) {
+            T[i] = malloc(R * sizeof(int));
+        }
+
+
+        for (int i = 0; i < R; i++)
+            for (int j = 0; j < R; j++)
+                T[i][j] = 0;
+
+        int fifo = mkfifo(PATH, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+        sleep(15); //Time for user to run slaves
+        if (fifo == 0) {
+
+            if ((fd = open(PATH, O_RDONLY)) < 0) {
                 fprintf(stderr, "error while opening fifo.\n");
-            }
-            else {
-                while(read(fd,buff, 50)){
-                   scale(buff,R);
+            } else {
+                while (read(fd, buff, 50)) {
+                    scale(buff, R, T);
                 }
             }
+            remove("data");
+            int out = open("data", O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 
-        }else{
+            char buffer[20];
+            for (int x = 0; x < R; x++)
+                for (int y = 0; y < R; y++) {
+                    sprintf(buffer, "%d %d %d\n", x, y, T[x][y]);
+                    write(out, buffer, strlen(buffer));
+                }                    //printf("%d %d %d\n",x,y,T[x][y]);
+
+
+
+            FILE *plotter = popen("gnuplot", "w");
+            fprintf(plotter, "set view map\n");
+            fprintf(plotter, "set xrange[0:%d]\n", R - 1);
+            fprintf(plotter, "set yrange[0:%d]\n", R - 1);
+            fprintf(plotter, "plot 'data' with image\n");
+
+            fflush(plotter);
+            getc(stdin);
+            fclose(plotter);
+
+
+        } else {
             fprintf(stderr, "error while creating fifo.\n");
+            unlink(PATH);
             EXIT_FAILURE;
         }
     }

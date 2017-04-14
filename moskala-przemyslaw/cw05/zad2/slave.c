@@ -3,15 +3,8 @@
 //
 
 
-#include <fcntl.h>
-#include <stdlib.h>
-#include <time.h>
+
 #include "slave.h"
-#include<stdio.h>
-#include<complex.h>
-#include<math.h>
-#include <zconf.h>
-#include <string.h>
 
 Point generate_point(){
     int x = rand()%(RE_MAX-RE_MIN)+RE_MIN;
@@ -28,7 +21,7 @@ Point generate_point(){
 }
 void display_complex(Point p){
     printf("%f+i*(%f) iter: %d\n",p.x,p.y,p.iter);
-    //printf("%f+i*(%f) = |%f|(%f +i%f)\n",p.x,p.y,p.abs,p.cosa,p.sina);
+
 }
 
 int count_iter(Point p, int max){
@@ -70,27 +63,12 @@ int main(int argc, char* argv[]){
 
             rand = generate_point();
             rand.iter=count_iter(rand,K);
-           // display_complex(rand);
             sprintf(buffer,"%lf %lf %d\n",rand.x,rand.y,rand.iter);
-            //printf(buffer);
             write(pipe, buffer,50);
         }
 
     }
-     /*
-    char* bfr="Adaadasdag\n";
-    int fd;
-    fd=open("ex_file",O_WRONLY);
-    if(fd<0) printf("Cannot open\n");
-    else {printf("Opened!");
-    for(int i = 0; i<5; i++)
-        write(fd,bfr,50);
-    }
-    sleep(10);
-    bfr="PO przerwie";
-    for(int i = 0; i<5; i++)
-        write(fd,bfr,50);
-        */
+
 }
 
 
