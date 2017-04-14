@@ -43,13 +43,16 @@ int count_iter(Point p, int max){
 
 }
 int main(int argc, char* argv[]){
-    /*srand(time(NULL));
+    char bfr[50];
+    int BFR_LEN =50;
+
+    srand(time(NULL));
     char buffer[50];
     if (argc<4) printf("usage: slave [path to named pipe] [amount of complex number to generate] [max limit of iterations]\n");
     else{
         char PATH[100];
         strcpy(PATH,argv[1]);
-        int pipe=open("example", O_CREAT|O_APPEND|O_WRONLY,S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IWOTH);
+        int pipe=open(PATH, O_WRONLY);
         if(pipe<0) {
             fprintf(stderr, "error while opening pipe\n");
             EXIT_FAILURE;
@@ -66,7 +69,7 @@ int main(int argc, char* argv[]){
         for (j = 0; j<N; j++){
 
             rand = generate_point();
-            rand.iter=count_iter(rand,100);
+            rand.iter=count_iter(rand,K);
            // display_complex(rand);
             sprintf(buffer,"%lf %lf %d\n",rand.x,rand.y,rand.iter);
             //printf(buffer);
@@ -74,7 +77,7 @@ int main(int argc, char* argv[]){
         }
 
     }
-     */
+     /*
     char* bfr="Adaadasdag\n";
     int fd;
     fd=open("ex_file",O_WRONLY);
@@ -87,6 +90,7 @@ int main(int argc, char* argv[]){
     bfr="PO przerwie";
     for(int i = 0; i<5; i++)
         write(fd,bfr,50);
+        */
 }
 
 
