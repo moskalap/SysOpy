@@ -43,7 +43,7 @@ int count_iter(Point p, int max){
 
 }
 int main(int argc, char* argv[]){
-    srand(time(NULL));
+    /*srand(time(NULL));
     char buffer[50];
     if (argc<4) printf("usage: slave [path to named pipe] [amount of complex number to generate] [max limit of iterations]\n");
     else{
@@ -74,6 +74,20 @@ int main(int argc, char* argv[]){
         }
 
     }
-
-
+     */
+    char* bfr="Adaadasdag\n";
+    int fd;
+    fd=open("ex_file",O_WRONLY);
+    if(fd<0) printf("Cannot open\n");
+    else {printf("Opened!");
+    for(int i = 0; i<5; i++)
+        write(fd,bfr,50);
+    }
+    sleep(10);
+    bfr="PO przerwie";
+    for(int i = 0; i<5; i++)
+        write(fd,bfr,50);
 }
+
+
+
