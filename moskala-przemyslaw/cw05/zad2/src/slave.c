@@ -10,8 +10,8 @@ Point generate_point(){
     int x = rand()%(RE_MAX-RE_MIN)+RE_MIN;
     int y = rand()%(IM_MAX-IM_MIN)+IM_MIN;
     Point p;
-    p.x=x/100.0;
-    p.y=y/100.0;
+    p.x=x/10000.0;
+    p.y=y/10000.0;
     p.abs = sqrt(p.x*p.x + p.y*p.y);
     p.sina = p.y/p.abs;
     p.cosa = p.x/p.abs;
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
         int K=atoi(argv[3]);
         int iter, j;
         Point rand;
-        double complex com;
+
 
 
         for (j = 0; j<N; j++){

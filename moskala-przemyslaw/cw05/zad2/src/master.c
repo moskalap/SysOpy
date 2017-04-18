@@ -1,15 +1,12 @@
 //
 // Created by przemek on 12.04.17.
 //
-int BFRL = 50;
-int GL;
 
 #include "master.h"
 
 
 int scale_x(double x, int R) { //x <
     x = x + 2; //x<-0,3
-
     x = x / 3;
     x = x * R;
     return (int) x;
@@ -18,7 +15,6 @@ int scale_x(double x, int R) { //x <
 
 int scale_y(double y, int R) {
     y = y + 1;//x<-0,2
-
     y = y / 2;
     y = y * R;
     return (int) y;
@@ -36,6 +32,7 @@ void scale(char *buff, int R, int **T) {
     T[scaled_x][scaled_y] = i;
 
 
+
 }
 
 int main(int argc, char *argv[]) {
@@ -43,8 +40,6 @@ int main(int argc, char *argv[]) {
     char buff[50];
 
     int fd;
-
-
 
     if (argc < 2) {
         printf("usage [FIFO_NAME] [R]\n");

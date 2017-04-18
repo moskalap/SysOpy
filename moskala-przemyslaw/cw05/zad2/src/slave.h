@@ -23,9 +23,9 @@ typedef struct Point{
     double cosa;
     int iter;
 }Point;
-const int IM_MAX = 100;
-const int IM_MIN = -100;
-const int RE_MAX = 100;
-const int RE_MIN = -200;
+const int IM_MAX = 10000;
+const int IM_MIN = -10000;
+const int RE_MAX = 10000;
+const int RE_MIN = -20000;
 
 #endif //CW05Z02_SLAVE_H
