@@ -13,6 +13,5 @@ nohup ./slave potok 99999 100 &
 nohup ./slave potok 99999 100 &
 nohup ./slave potok 99999 100 &
 nohup ./slave potok 99999 100 &
-nohup ./slave potok 99999 100 & ; 
-echo aadasdas
+nohup ./slave potok 99999 100 &
 
