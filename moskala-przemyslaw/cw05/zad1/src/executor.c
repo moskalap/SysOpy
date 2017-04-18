@@ -2,7 +2,7 @@
 // Created by przemek on 05.04.17.
 //
 
-#include "interpreter.h"
+#include "executor.h"
 
 void sig_handler(int n) {
     //Just a handler for interupt pause();
@@ -26,11 +26,10 @@ char **create_array(char *buff) {
     parmList[i] = NULL;
     free(p);
     return parmList;
-
 }
 
 /**
- * creates a struct Pipe w
+ * creates a struct Pipe
  * @param token
  * @return
  */
@@ -48,7 +47,6 @@ Executable *create_executable(char *token) {
  * @param e
  */
 void display_executable(Executable *e, int fd[]) {
-    fprintf(stderr, "Program name: %s.\n", e->program_name);
     printf("\n PPID %d, PID %d Writing to%d from %d Program name: %s.\n", getppid(), getpid(), fd[1], fd[0],
            e->program_name);
     int i = 0;
@@ -101,8 +99,12 @@ void add_executable_to_pipe(Pipe *pipe, Executable *e) {
  * @return struct Pipe
  */
 Pipe *build_from_args(char *args) {
+    char *pos;
+    if ((pos = strchr(args, '\n')) != NULL)
+        *pos = '\0';
+
+    strcat(args, " | ");
     Pipe *pipe = create_pipe();
-    char *tmp;
     char **tokens_list = malloc(sizeof(char *) * MAX_TOKENS);
     int i = 0;
     char *p = strtok(args, "|");
@@ -112,7 +114,6 @@ Pipe *build_from_args(char *args) {
         strcpy(tokens_list[i], p);
         p = strtok(NULL, "|");
         i++;
-
 
     }
     for (int j = 0; j < i; j++) {
@@ -149,7 +150,6 @@ void execute_all(Pipe *p) {
         pause(); // Wait for a SIGALARM from child ( permission to start own task )
         wait(NULL);
         kill(getppid(), SIGALRM);  // send permission to parent
-        display_executable(task, fd);
         exec_token(task);
         exit(0);
 
@@ -170,17 +170,16 @@ void execute_all(Pipe *p) {
 
 
 int main(int argc, char *argv[]) {
-    int BFR_LEN=200;
+    int BFR_LEN = 200;
     signal(SIGALRM, sig_handler);
     signal(SIGCHLD, sig_handler);
     START_PROCESS_PID = getpid();
     char buf[BFR_LEN];
-    //char buf[] = "ls -la | grep Makefile | wc | wartownik";
     Pipe *p;
-    fgets(buf,BFR_LEN,stdin);
-    fgets(buf,BFR_LEN,stdin);
+    fgets(buf, BFR_LEN, stdin);
     p = build_from_args(buf);
-
+    Executable *executable = malloc(sizeof(Executable));
     execute_all(p);
+
 
 }
