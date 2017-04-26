@@ -7,8 +7,17 @@
 #include <stdio.h>
 #include <time.h>
 #include <ctype.h>
+#include <mqueue.h>
+#include <mqueue.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+#include <ctype.h>
 
-int run=1;
+
+int run = 1;
 List *users;
 
 
@@ -70,32 +79,31 @@ void delete_user(List *list, pid_t pid) {
     //TODO
 }
 
-int initialize_server(key_t key, int flags){
+int initialize_server(key_t key, int flags) {
     int q = 10;
     q = msgget(key, flags);
-    if (q == -1){
+    if (q == -1) {
         fprintf(stderr, "error while creating queue.\n");
         exit(-1);
     }
     return q;
 }
 
-key_t get_key() {
-    key_t key = ftok(getenv(PATH), PROJ_ID);
-    if (key == -1) {
-        fprintf(stderr, "error while creating key");
-        exit(key);
+mqd_t create_public_queue() {
+    mqd_t q;
+    struct mq_attr attr;
+    attr.mq_flags = 0;
+    attr.mq_maxmsg = MSGS_MAX;
+    attr.mq_msgsize = MSG_SIZE;
+    q = mq_open(SERVER_NAME, O_CREAT | O_RDONLY, 0666, &attr);
+    if (q == -1) {
+        fprintf(stderr, "error while creating a public queue\n");
+        exit(-1);
     }
-    return key;
+    return q;
 
 }
 
-Message *create_message(long type, char message[]) {
-    Message *m = malloc(sizeof(Message));
-    strcpy(m->value, message);
-    m->sender = getpid();
-    m->type = type;
-}
 
 void display_message(Message *msg) {
     printf("From: %d\nType: %s\nVal: %s\n", msg->sender,
@@ -118,21 +126,27 @@ char *get_time() {
 
 }
 
-void close_queue(int q) {
-    if (-1 == (msgctl(q, IPC_RMID, NULL))) {
+void close_queue(mqd_t q) {
+    if (-1 == (mq_close(q))) {
+        fprintf(stderr, "%error while closing queue\n");
+        exit(1);
+    }
+    if (-1 == (mq_unlink(SERVER_NAME))) {
         fprintf(stderr, "%error while closing queue\n");
         exit(1);
     }
 }
-void terminate_server(){
+
+void terminate_server() {
     exit(0);
 }
 
-Message *queue_get(int q, Message *msg, int MSGLEN) {
-    size_t a = (size_t) MESSAGE_SIZE;
+Message *queue_get(mqd_t q, Message *msg, int MSGLEN) {
 
-    if (-1 == msgrcv(q, msg, a, 0, MSG_NOERROR)) {
+
+    if (-1 == mq_receive(q, (char *) msg, MESSAGE_SIZE, 0)) {
         printf(stderr, "error while receiving msg\n");
+        exit(-1);
     }
 
     return msg;
@@ -158,11 +172,9 @@ void send_message(char *value, int q_id, long type) {
 }
 
 
-
-
-void process(Message * msg){
+void process(Message *msg) {
     if (msg)
-        switch(msg->type){
+        switch (msg->type) {
             case LOGIN:
                 printf("login attempt from %d\n", msg->sender);
                 //display_message(msg);
@@ -194,12 +206,13 @@ void process(Message * msg){
 int are_tasks(int q) {
     return 0;
 }
-int main(){
+
+int main() {
+    mqd_t queue = create_public_queue();
+
+
     users = create_list();
 
-    key_t key = get_key();
-    int flags = IPC_CREAT | 0666;
-    int queue = initialize_server(key,flags);
     Message msg;
     while (run || are_tasks(queue) == 1) {
         process(queue_get(queue, &msg, MESSAGE_SIZE));
@@ -207,5 +220,16 @@ int main(){
     }
 
     close_queue(queue);
+/*
+    key_t key = get_key();
+    Message msg;
+   while (run || are_tasks(queue) == 1){
+       process(queue_get(queue, &msg, MESSAGE_SIZE));
+
+   }
+
+    close_queue(queue);
+
+ */
 
 }

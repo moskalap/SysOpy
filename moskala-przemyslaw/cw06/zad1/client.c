@@ -12,29 +12,33 @@
 #include "server.h"
 
 int run=1;
-pid_t login;
+int private_queue;
+int public_queue;
+pid_t myID;
+
 pid_t server=0;
-Request_Type get_type(char msg[]){
+
+long get_type(char msg[]) {
     if(msg[0] == ':'){
         switch (msg[1]){
             case 'e':
-                return echo;
+                return ECHO;
             case 't':
-                return time;
+                return TIME_REQ;
             case 'q':
                 run=0;
-                return termination;
+                return TERM;
             case 'u':
-                return to_upper;
+                return TO_UPPER;
             default:
-                return undefined;
+                return -1;
         }
     }
-    return undefined;
+    return -1;
 
 }
-char* str_cut(char *str, int begin, int len)
-{
+
+char *str_cut(char *str, int begin, int len) {
     int l = strlen(str);
 
     if (len < 0) len = l - begin;
@@ -43,43 +47,114 @@ char* str_cut(char *str, int begin, int len)
 
     return str;
 }
-Message * create_message(Request_Type type, char message[]){
-    Message * m = malloc(sizeof(Message));
-    strcpy(m->value, message);
-    m->sender=getpid();
-    m->type=type;
+
+void create_message(Message m, long type, char message[]) {
+    strcpy(m.value, message);
+    m.sender = myID;
+    m.type = type;
 }
 
+key_t get_key() {
+    key_t key = ftok(getenv(PATH), PROJ_ID);
+    if (key == -1) {
+        fprintf(stderr, "error while creating key");
+        exit(key);
+    }
+    return key;
+
+}
+
+int get_queue(key_t key, int flags) {
+    int q = msgget(key, flags);
+    if (q == -1) {
+        fprintf(stderr, "error while %s queue", key == IPC_PRIVATE ? "creating private" : "opening public");
+    }
+}
 void display_message(Message* msg){
-    printf("From: %d\nType: %s\nVal: %s\n",msg->sender,
-           (msg->type == echo)?"echo":((msg->type == to_upper)?"to_upper":(msg->type == time)?"time":(msg->type == termination)?"term":"noth"), msg->value);
+    printf("From: %d\nType: %s\nVal: %s\n", msg->sender,
+           (msg->type == ECHO) ? "echo" :
+           ((msg->type == TO_UPPER) ? "to_upper" :
+            (msg->type == TIME_REQ) ? "time" :
+            (msg->type == TERM) ? "term" :
+            "noth"),
+           msg->value);
 
 }
-void send_message(Message * msg, int q){
-    msgsnd(q, msg,MSG_LEN_MAX,0);
+
+void send_message(Message msg, int queue) {
+    if (msgsnd(queue, &msg, MESSAGE_SIZE, 0) == -1) {
+        fprintf(stderr, "error while sending a message %s\n", msg.value);
+        msgctl(private_queue, IPC_RMID, NULL);
+        exit(-1);
+    }
+
+}
+
+
+int login() {
+    char private_q_str[25];
+
+    Message msg;
+    sprintf(msg.value, "%d", private_queue);
+    msg.sender = getpid();
+    msg.type = LOGIN;
+    send_message(msg, public_queue);
+
+    sleep(1);
+    msgrcv(private_queue, &msg, (size_t) MESSAGE_SIZE, 0, MSG_NOERROR);
+    if (strcmp(msg.value, ":(") == 0) {
+        printf("failure");
+    } else {
+        printf("%s", msg.value);
+        myID = atoi(msg.value);
+    }
+
+
+
 }
 int main(){
-    display_message(create_message(echo, "blalabla"));
-    printf(getenv("HOME"));
+
+    key_t sever_key = get_key();
+    private_queue = get_queue(IPC_PRIVATE, 0666);
+    public_queue = get_queue(sever_key, 0);
+    int id = login();
+    printf("Connection successful\n"
+                   "use \n"
+                   ":e TEXT\t\tfor echo\n"
+                   ":u TEXT\t\tfor translate to upper case\n"
+                   ":t\t\t\tto receive time\n"
+                   ":q\t\t\tfor terminate server \n"
+    );
 
     char *buffer;
     size_t bufsize = 32;
     size_t characters;
-    login=getpid();
 
     buffer = (char *)malloc(bufsize * sizeof(char));
-    Message * msg;
+    Message msg;
     char * b;
-    Request_Type type;
+    long type;
     while(run){
 
-        printf("\n%d@%d:$ ",login,server);
+        printf("\n%d@serv: >\t ", myID);
         getline(&buffer,&bufsize,stdin);
         type=get_type(buffer);
         b = str_cut(buffer,0,2);
-        if(type != undefined)
-            send_message(create_message(type,b));
-        //        display_message(create_message(type,b));
+        strcpy(msg.value, b);
+        msg.sender = myID;
+        msg.type = type;
+        send_message(msg, public_queue);
+        if (type == TERM) {
+            msgctl(private_queue, IPC_RMID, NULL);
+            exit(0);
+        }
+        msgrcv(private_queue, &msg, (size_t) MESSAGE_SIZE, 0, MSG_NOERROR);
+        printf("%s", msg.value);
+
+
+
+
     }
+
 
 }
