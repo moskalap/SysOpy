@@ -5,7 +5,7 @@
 #include "executor.h"
 
 void sig_handler(int n) {
-    //Just a handler for interupt pause();
+    //Just a handler for interrupt pause();
     return;
 }
 /**
@@ -181,5 +181,5 @@ int main(int argc, char *argv[]) {
     Executable *executable = malloc(sizeof(Executable));
     execute_all(p);
 
-
+    return 0;
 }

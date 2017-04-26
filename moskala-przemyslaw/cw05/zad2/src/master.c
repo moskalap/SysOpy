@@ -21,7 +21,7 @@ int scale_y(double y, int R) {
 
 }
 
-void scale(char *buff, int R, int **T) {
+void process(char *buff, int R, int **T) {
 
     int scaled_x, scaled_y;
     double x = atof(strtok(buff, " "));
@@ -30,7 +30,6 @@ void scale(char *buff, int R, int **T) {
     scaled_x = scale_x(x, R);
     scaled_y = scale_y(y, R);
     T[scaled_x][scaled_y] = i;
-
 
 
 }
@@ -47,7 +46,7 @@ int main(int argc, char *argv[]) {
     } else {
         int R = atoi(argv[2]);
         strcpy(PATH, argv[1]);
-        unlink(PATH);
+
 
         int **T;
 
@@ -69,7 +68,7 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "error while opening fifo.\n");
             } else {
                 while (read(fd, buff, 50)) {
-                    scale(buff, R, T);
+                    process(buff, R, T);
                 }
             }
             remove("data");
@@ -101,5 +100,6 @@ int main(int argc, char *argv[]) {
             EXIT_FAILURE;
         }
     }
+    return 0;
 
 }

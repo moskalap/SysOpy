@@ -1,64 +1,63 @@
 
-#include<string.h>
-#include<time.h>
-#include<sys/ipc.h>
-#include<sys/msg.h>
-#include<sys/wait.h>
-#include<sys/errno.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
-extern int errno;       // error NO.
-#define MSGPERM 0600    // msg queue permission
-#define MSGTXTLEN 128   // msg text length
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <mqueue.h>
 
-int msgqid, rc;
-int done;
-
-struct msg_buf {
-    long mtype;
-    char mtext[MSGTXTLEN];
-} msg;
+#define SERVER_QUEUE_NAME   "/sp-example-server"
+#define QUEUE_PERMISSIONS 0660
+#define MAX_MESSAGES 10
+#define MAX_MSG_SIZE 256
+#define MSG_BUFFER_SIZE MAX_MSG_SIZE + 10
 
 int main(int argc, char **argv) {
-    // create a message queue. If here you get a invalid msgid and use it in msgsnd() or msgrcg(), an Invalid Argument error will be returned.
-    msgqid = msgget(IPC_PRIVATE, MSGPERM | IPC_CREAT | IPC_EXCL);
-    if (msgqid < 0) {
-        perror(strerror(errno));
-        printf("failed to create message queue with msgqid = %d\n", msgqid);
-        return 1;
+    mqd_t qd_server, qd_client;   // queue descriptors
+    long token_number = 1; // next token to be given to client
+
+    printf("Server: Hello, World!\n");
+
+    struct mq_attr attr;
+
+    attr.mq_flags = 0;
+    attr.mq_maxmsg = MAX_MESSAGES;
+    attr.mq_msgsize = MAX_MSG_SIZE;
+    attr.mq_curmsgs = 0;
+
+    if ((qd_server = mq_open(SERVER_QUEUE_NAME, O_RDONLY | O_CREAT, QUEUE_PERMISSIONS, &attr)) == -1) {
+        perror("Server: mq_open (server)");
+        exit(1);
     }
-    printf("message queue %d created\n", msgqid);
+    char in_buffer[MSG_BUFFER_SIZE];
+    char out_buffer[MSG_BUFFER_SIZE];
 
-    // message to send
-    msg.mtype = 1; // set the type of message
-    sprintf(msg.mtext, "%s\n", "a text msg..."); /* setting the right time format by means of ctime() */
+    while (1) {
+        // get the oldest message with highest priority
+        if (mq_receive(qd_server, in_buffer, MSG_BUFFER_SIZE, NULL) == -1) {
+            perror("Server: mq_receive");
+            exit(1);
+        }
 
-    // send the message to queue
-    rc = msgsnd(msgqid, &msg, sizeof(msg.mtext),
-                0); // the last param can be: 0, IPC_NOWAIT, MSG_NOERROR, or IPC_NOWAIT|MSG_NOERROR.
-    if (rc < 0) {
-        perror(strerror(errno));
-        printf("msgsnd failed, rc = %d\n", rc);
-        return 1;
+        printf("Server: message received.\n");
+
+        // send reply message to client
+
+        if ((qd_client = mq_open(in_buffer, O_WRONLY)) == 1) {
+            perror("Server: Not able to open client queue");
+            continue;
+        }
+
+        sprintf(out_buffer, "%ld", token_number);
+
+        if (mq_send(qd_client, out_buffer, strlen(out_buffer), 0) == -1) {
+            perror("Server: Not able to send message to client");
+            continue;
+        }
+
+        printf("Server: response sent to client.\n");
+        token_number++;
     }
-
-    // read the message from queue
-    rc = msgrcv(msgqid, &msg, sizeof(msg.mtext), 0, 0);
-    if (rc < 0) {
-        perror(strerror(errno));
-        printf("msgrcv failed, rc=%d\n", rc);
-        return 1;
-    }
-    printf("received msg: %s\n", msg.mtext);
-
-    // remove the queue
-    rc = msgctl(msgqid, IPC_RMID, NULL);
-    if (rc < 0) {
-        perror(strerror(errno));
-        printf("msgctl (return queue) failed, rc=%d\n", rc);
-        return 1;
-    }
-    printf("message queue %d is gone\n", msgqid);
-
-    return 0;
 }
