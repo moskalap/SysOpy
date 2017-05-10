@@ -15,6 +15,7 @@ char *to_find;
 int records_size = 1024;
 int fd;
 int END_FILE = 0;
+int records_transfered;
 int *finished;
 
 
@@ -37,26 +38,10 @@ int main(int argc, char *argv[]) {
     }
 
     int err;
-    finished = malloc(threads_amount * sizeof(int));
-    for (int j = 0; j < threads_amount; j++)
-        finished[j] = 1;
+
 
     pthread_t *threads = malloc(threads_amount * sizeof(pthread_t));
-    int iterator = 0;
-    while (!END_FILE) {
-        if (finished[iterator]) {
-            finished[iterator] = 0;
-            err = pthread_create(&threads[iterator], NULL, &do_some_thing, iterator);
-            if (err == -1) {
-                perror("erroor while creating thread\n");
-            }
 
-
-        }
-        iterator = (iterator + 1) % threads_amount;
-
-
-    }
 
 
     for (int t = 0; t < threads_amount; t++) {
@@ -67,9 +52,10 @@ int main(int argc, char *argv[]) {
 
     }
 
+    for (int t = 0; t < threads_amount; t++)
+        pthread_join(threads[t], NULL);
 
-
-
+    printf("TOTAL: %d", records_transfered);
 
 
 /*
@@ -91,7 +77,9 @@ int main(int argc, char *argv[]) {
 
 void *do_some_thing(void *arg) {
     //Read_to_local_
-    int i = (int) arg;
+    // int i = (int) arg;
+
+    while (!END_FILE) {
 
 
     printf("start read\n");
@@ -116,7 +104,9 @@ void *do_some_thing(void *arg) {
         buff += 1020;
 
     }
-    finished[i] = 1;
+        records_transfered += records_to_read;
+        //finished[i] = 1;
+    }
 
 
 }
