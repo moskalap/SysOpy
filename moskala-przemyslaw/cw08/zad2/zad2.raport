@@ -1,0 +1,39 @@
+A)
+1.wysłanie sygnału do procesu, gdy żaden wątek nie ma zamaskowanego tego sygnału
+  a)SIGUSR1 - wątek główny kończy są (pozostałe też)  - "Process finished with exit code 10"
+  b)SIGTERM - wątek główny kończy są (pozostałe też)  - "Process finished with exit code 15"
+  c)SIGKILL - wątek główny kończy są (pozostałe też)  - "Process finished with exit code 9"
+  d)SIGSTOP - wątek główny zatrzymuje się (pozostałe też)
+2.wysłanie sygnału do procesu, gdy główny wątek programu ma zamaskowany ten sygnał, a wszystkie pozostałe wątki nie,
+  a)SIGUSR1 - nic się nie dzieje - wszystkie wątki działają
+  b)SIGTERM - nic się nie dzieje - wszystkie wątki działają
+  c)SIGKILL - wszystkie wątki kończą pracę - "Process finished with exit code 9"
+  d)SIGSTOP - wątek główny zatrzymuje się (pozostałe też)
+3.wysłanie sygnału do procesu, gdy wszystkie wątki mają zainstalowaną niestandardową procedurę obsługi przerwania, która wypisuje informację o nadejściu tego sygnału oraz PID i TID danego wątku
+  a)SIGUSR1 - tylko jeden z wątków obsłużył sygnał
+  b)SIGTERM - tylko jeden z wątków obsłużył sygnał
+  c)SIGKILL - wszystkie wątki kończą pracę - "Process finished with exit code 9"
+  d)SIGSTOP - wątek główny zatrzymuje się (pozostałe też)
+4. wysłanie sygnału do wątku z zamaskowanym tym sygnałem
+  a)SIGUSR1 - nic się nie dzieje - wątek dalej działa (pozostałe też)
+  b)SIGTERM - nic się nie dzieje - wątek dalej działa (pozostałe też)
+  c)SIGKILL - wszystkie wątki kończą pracę - program ubija się sam
+  d)SIGSTOP - wsystkie wątki się zatrzymują, nie tylko ten do którego wysłany sygnał
+5. wysłanie sygnału do wątku, w którym zmieniona jest procedura obsługi sygnału, jak przedstawiono w punkcie 3
+  a)SIGUSR1 - wątek, do którego został wysłany sygnał, obsługuje go, a reszta działa normalnie
+  b)SIGTERM - wątek, do którego został wysłany sygnał, obsługuje go, a reszta działa normalnie
+  c)SIGKILL - wszystkie wątki kończą pracę - "Process finished with exit code 9"
+  d)SIGSTOP - wsystkie wątki się zatrzymują
+
+B)
+    Process finished with exit code 136 (interrupted by signal 8: SIGFPE),
+    więc wszystkie wątki zostały ubite.
+
+Jądro:
+    4.4.0-72-generic
+
+System:
+    Distributor ID:	Ubuntu
+    Description:	Ubuntu 16.04.1 LTS
+    Release:	16.04
+    Codename:	xenial
