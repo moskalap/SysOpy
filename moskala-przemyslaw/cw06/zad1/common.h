@@ -9,7 +9,6 @@
 #include <string.h>
 #include <zconf.h>
 #include <printf.h>
-#include "client.h"
 
 const char PATH[] = "HOME";
 const int PROJ_ID = 101;

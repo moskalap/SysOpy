@@ -48,12 +48,6 @@ char *str_cut(char *str, int begin, int len) {
     return str;
 }
 
-void create_message(Message m, long type, char message[]) {
-    strcpy(m.value, message);
-    m.sender = myID;
-    m.type = type;
-}
-
 key_t get_key() {
     key_t key = ftok(getenv(PATH), PROJ_ID);
     if (key == -1) {

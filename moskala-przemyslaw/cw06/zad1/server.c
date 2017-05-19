@@ -65,10 +65,7 @@ int add_user(List *list, pid_t client_pid, int q_id) {
     }
 }
 
-void delete_user(List *list, pid_t pid) {
 
-    //TODO
-}
 
 int initialize_server(key_t key, int flags){
     int q = 10;
@@ -165,7 +162,6 @@ void process(Message * msg){
         switch(msg->type){
             case LOGIN:
                 printf("login attempt from %d\n", msg->sender);
-                //display_message(msg);
                 int is_added = add_user(users, msg->sender, atoi(msg->value));
                 char id[20];
                 sprintf(id, "%d", is_added);
@@ -191,9 +187,7 @@ void process(Message * msg){
 
 }
 
-int are_tasks(int q) {
-    return 0;
-}
+
 int main(){
     users = create_list();
 
@@ -201,8 +195,14 @@ int main(){
     int flags = IPC_CREAT | 0666;
     int queue = initialize_server(key,flags);
     Message msg;
-    while (run || are_tasks(queue) == 1) {
+
+    struct msqid_ds stat;
+    int empty = 1;
+    while (run || !empty) {
         process(queue_get(queue, &msg, MESSAGE_SIZE));
+        msgctl(queue, IPC_STAT, &stat);
+        empty = stat.msg_qnum;
+
 
     }
 

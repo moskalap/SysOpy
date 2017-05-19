@@ -1,18 +1,30 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_C_STANDARD 99)
-project(cw05z01)
-add_executable(cw05z01 moskala-przemyslaw/cw05/zad1/src/executor.c)
-project(cw05z02m)
-add_executable(cw05z02m moskala-przemyslaw/cw05/zad2/src/master.c)
-project(cw05z02s)
-add_executable(cw05z02s moskala-przemyslaw/cw05/zad2/src/slave.c)
-project(cw06z01client)
-add_executable(cw06z01server moskala-przemyslaw/cw06/zad1/server.c)
-add_executable(cw06z01client moskala-przemyslaw/cw06/zad1/client.c)
-project(cw06z02c)
-project(cw06z02s)
-add_executable(cw06z02s moskala-przemyslaw/cw06/zad2/pserver.c)
-add_executable(cw06z02c moskala-przemyslaw/cw06/zad2/pclient.c)
-target_link_libraries(cw06z02s rt)
-target_link_libraries(cw06z02c rt)
+set(CMAKE_C_FLAGS -fno-stack-protector)
+
+project(cw8z1)
+add_executable(cw8z1 moskala-przemyslaw/cw08/zad1/finder1.c)
+
+project(file_creator)
+add_executable(file_creator moskala-przemyslaw/cw08/zad1/file_creator.c)
+target_link_libraries(cw8z1 pthread)
+
+project(cw8z2)
+add_executable(cw8z2 moskala-przemyslaw/cw08/zad2/threads_tester.c)
+target_link_libraries(cw8z2 pthread)
+
+project(finderver2)
+add_executable(finderver2 moskala-przemyslaw/cw08/zad1/finder2.c)
+target_link_libraries(finderver2 pthread)
+
+
+project(finderver3)
+add_executable(finderver3 moskala-przemyslaw/cw08/zad1/finder3.c)
+target_link_libraries(finderver3 pthread)
+
+
+
+
+
+

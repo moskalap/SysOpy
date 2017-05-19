@@ -1,7 +1,9 @@
 
+#include <ctype.h>
+#include <time.h>
 #include "pcommon.h"
 
-
+int run = 1;
 char *str_cut(char *str, int begin, int len) {
     int l = strlen(str);
 
@@ -12,17 +14,26 @@ char *str_cut(char *str, int begin, int len) {
     return str;
 }
 
+char *convert_to_upper(char *msg) {
+    int i = 0;
+    while (msg[i]) {
+        msg[i] = toupper(msg[i]);
+        i++;
+    }
+    return msg;
+}
+
 int users[9];
 int nextid = -1;
 
 
 mqd_t initialize_server() {
-    struct mq_attr attr;
+
     mqd_t q;
+    struct mq_attr attr;
     attr.mq_flags = 0;
-    attr.mq_maxmsg = MAX_MESSAGES;
-    attr.mq_msgsize = MAX_MSG_SIZE;
-    attr.mq_curmsgs = 0;
+    attr.mq_maxmsg = MSGS_LIMIT;
+    attr.mq_msgsize = MESSAGE_SIZE;
 
     if ((q = mq_open(SERVER_QUEUE_NAME, O_RDONLY | O_CREAT, QUEUE_PERMISSIONS, &attr)) == -1) {
         perror("Server: mq_open (server)");
@@ -37,34 +48,81 @@ mqd_t open_client_queue(char *name) {
         printf(stderr, "error open clieny");
         exit(-1);
     }
+    printf("opened suc");
     return q;
 
 
 }
 
-void process_mesage(char *in_buffer) {
-    int type = in_buffer[0] - '0';
-    printf(in_buffer);
-    int id = in_buffer[2] - '0';
+char *get_time() {
+    time_t rawtime;
+    struct tm *timeinfo;
 
-    switch (type) {
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    return asctime(timeinfo);
+
+}
+
+void send_msg(mqd_t queue, Message *msg) {
+    if (-1 == (mq_send(queue, (char *) msg, MESSAGE_SIZE, 0))) {
+        perror("err");
+    }
+}
+
+void process_mesage(Message *m) {
+
+
+    switch (m->mtype) {
         case LOGIN:
-            printf("loggin attempt");
-            in_buffer = str_cut(in_buffer, 0, 2);
-            users[++nextid] = open_client_queue(in_buffer);
+            if (nextid > MAX_USERS) {
+                mqd_t q = open_client_queue(m->val);
+                strcpy(m->val, ":(");
+                send_msg(q, m);
+
+            }
+            users[++nextid] = open_client_queue(m->val);
+            char b[5];
+            sprintf(b, "%d", nextid);
+            strcpy(m->val, b);
+            send_msg(users[nextid], m);
             break;
         case TO_UPPER:
-            printf("toup");
+            strcpy(m->val, convert_to_upper(m->val));
+            send_msg(users[m->from], m);
             break;
         case TIME_REQ:
-            printf("time");
+
+            strcpy(m->val, get_time());
+            send_msg(users[m->from], m);
             break;
         case TERM:
-            printf("term");
+            for (int i = 0; i <= nextid; i++) {
+                if (i != m->from) send_msg(i, m);
+            }
+            run = 0;
+        case ECHO:
+            send_msg(users[m->from], m);
             break;
         default:
             break;
 
+    }
+
+}
+
+Message *message_get(mqd_t queue, Message *msg) {
+    if (-1 == (mq_receive(queue, (char *) msg, MESSAGE_SIZE, 0))) {
+        fprintf(stderr, "err while receiv");
+        exit(-11);
+    }
+    return msg;
+}
+
+void close_connection(mqd_t q) {
+    if (mq_close(q) == -1) {
+        perror("Server: mq_close");
+        exit(1);
     }
 
 }
@@ -74,37 +132,30 @@ int main(int argc, char **argv) {
     long token_number = 1; // next token to be given to client
     public_queue = initialize_server();
 
-    char in_buffer[MSG_BUFFER_SIZE];
-    char out_buffer[MSG_BUFFER_SIZE];
     Message m;
-    size_t s = sizeof(m);
+    int nonempty = 1;
+    struct mq_attr attr;
 
-    while (1) {
-
-        if (mq_receive(public_queue, (char *) &m, sizeof(m), NULL) == -1) {
-            perror("error while receiviing msg");
-            exit(1);
-        }
-
-
+    while (run || nonempty) {
+        message_get(public_queue, &m);
         printf("Server: message received.\n");
-        process_mesage(in_buffer);
+        process_mesage(&m);
+        mq_getattr(public_queue, &attr);
+        nonempty = attr.mq_curmsgs;
 
-/*
-        if ((qd_client = mq_open (in_buffer, O_WRONLY)) == 1) {
-            perror ("Server: Not able to open client queue");
-            continue;
-        }
-        char msg[] = "msg";
-        sprintf (out_buffer, "%ld:%s", token_number, msg);
+    }
 
-        if (mq_send (qd_client, out_buffer, strlen (out_buffer), 0) == -1) {
-            perror ("Server: Not able to send message to client");
-            continue;
-        }
+    for (int j = 0; j <= nextid; j++) {
+        close_connection(users[j]);
+    }
 
-        printf ("Server: response sent to client.\n");
-        token_number++;
-        */
+    if (mq_close(public_queue) == -1) {
+        perror("Serrver: mq_close");
+        exit(1);
+    }
+
+    if (mq_unlink(SERVER_QUEUE_NAME) == -1) {
+        perror("Server: mq_unlink");
+        exit(1);
     }
 }

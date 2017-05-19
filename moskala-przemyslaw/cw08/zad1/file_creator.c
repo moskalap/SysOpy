@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
         for (int e = 0; e < 1024 - sizeof(int); e++) {
             byte = (char) ('a' + rand() % 26);
             write(fd, &byte, sizeof(byte));
-            // printf("%c", byte);
+
         }
     }
     close(fd);

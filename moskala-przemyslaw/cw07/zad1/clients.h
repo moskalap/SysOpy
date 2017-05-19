@@ -12,6 +12,13 @@ Waiting_Room *enter_waiting_room();
 
 void get_semaphore();
 
+int can_be_shaved(Waiting_Room *w);
+
+int try_to_take_a_seat(Waiting_Room *waiting_room);
+
+void leave();
+
+void wait_for_shave(Waiting_Room *waiting_room);
 void turn_semaphore_on(unsigned short name);
 
 void turn_semaphore_off(unsigned short name);

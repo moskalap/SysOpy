@@ -19,7 +19,11 @@
 
 
 #define ACCESS_SHM 1
-#define BARBER_SLEEP 0
+#define FREE_SEATS 0
+#define CUSTOMERS_IN_QUEUE 2
+#define CHAIR 3
+#define PAYMENT 4
+
 
 #define PROJECT_ID 23
 const char env[] = "HOME";
