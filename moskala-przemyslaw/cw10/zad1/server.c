@@ -290,6 +290,10 @@ void work_forever() {
 
 void add_client(int infd) {
     clients[CLIENTS++] = infd;
+    Message msg;
+    msg.m_t = HI;
+    strncpy(msg.name, "no czesc", MAX_NAME_LEN);
+    send(infd, &msg, sizeof(msg), 0);
 
 }
 
@@ -318,7 +322,8 @@ void delegate(Task *task) {
 }
 
 void create_msg(Message *msg, Task *task, enum message_type t) {
-    msg->task = task;
+    msg->task.operand1 = task->operand1;
+    msg->task.operand2 = task->operand2;
     msg->m_t = t;
 }
 
