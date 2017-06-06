@@ -18,8 +18,9 @@
 
 int socket_desc, client_socket, c;
 
+void incoming_msg_handler(int i);
 
-void initialize_server();
+void incoming_client_handler(int i);
 
 void parse_args(int argc, char **pString, in_port_t *port, char *path);
 
@@ -28,7 +29,6 @@ void create_task(Task *task, char bfr[50]);
 char *stringify_task(Task task, char *str);
 
 void delegate(Task *pTask);
-
 
 void *network_job(void *arg);
 
@@ -40,16 +40,24 @@ in_port_t tcp_port;
 char unix_socket_path[MAXUNIXPATH];
 pthread_mutex_t clients_array_mutex = PTHREAD_MUTEX_INITIALIZER;
 int run = 1;
-int CLIENTS = 1;
+int CLIENTS = 0;
 int task_id = 0;
 int clients[MAX_CLIENTS];
-char clients_name[MAX_CLIENTS];
+char *clients_name[MAX_CLIENTS];
 int internet_socket;
 int local_socket;
 int efd;
+
+void *ping_clients(void *arg);
+
 struct epoll_event events[MAXEVENTS];
 
 int main(int argc, char *argv[]) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        char strl[MAX_NAME_LEN];
+        clients_name[i] = strl;
+    }
+
     srand((unsigned int) time(NULL));
     parse_args(argc, argv, &tcp_port, unix_socket_path);
     char bfr[50];
@@ -58,10 +66,18 @@ int main(int argc, char *argv[]) {
     char str[20];
     Task task;
     pthread_t network;
+    pthread_t pinger;
+
     if (-1 == pthread_create(&network, NULL, network_job, NULL)) {
         perror("error while creating network thread");
         exit(-1);
     }
+
+    if (-1 == pthread_create(&pinger, NULL, ping_clients, NULL)) {
+        perror("error while creating network thread");
+        exit(-1);
+    }
+
     while (run) {
         task_id++;
         task.task_id = task_id;
@@ -69,16 +85,45 @@ int main(int argc, char *argv[]) {
         scanf("%s", bfr);
         create_task(&task, bfr);
         if (task.op != UNKN) printf("\n<SERVER>%s", stringify_task(task, str));
+        if (task.op == END) {
+            Message msg;
+            msg.m_t = BYE;
+            for (int i = 0; i < CLIENTS; i++)
+                send(clients[i], &msg, sizeof(msg), MSG_WAITALL);
+            shutdown(internet_socket, SHUT_RDWR);
+            shutdown(local_socket, SHUT_RDWR);
+            close(internet_socket);
+            close(local_socket);
+            exit(0);
+        }
         printf("\n>\t");
         delegate(&task);
     }
 
 
-
-
-
-
     return 0;
+}
+
+
+void *ping_clients(void *arg) {
+    int i = 0;
+    Message msg;
+    msg.m_t = PING;
+    while (run) {
+        if (CLIENTS != 0)
+            if (i % CLIENTS < CLIENTS) {
+                if (-1 == send(clients[i % CLIENTS], &msg, sizeof(msg), 0)) {
+
+                } else {
+                    fprintf(stderr, "sent ping to %s\n", clients_name[i % CLIENTS]);
+                };
+                sleep(5);
+            }
+        i++;
+        sleep(5);
+
+
+    }
 }
 
 void close_client(int cd) {
@@ -89,16 +134,17 @@ void close_client(int cd) {
             for (j = i; j < MAX_CLIENTS - 1; j++) {
                 clients[j] = clients[j + 1];
             }
-            break;
 
+            CLIENTS--;
+            break;
         }
         close(cd);
-        CLIENTS--;
+
 
     }
 }
 
-create_internet_socket() {
+void create_internet_socket() {
     internet_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (internet_socket == -1) {
         perror("error while creating internet socket");
@@ -119,7 +165,7 @@ create_internet_socket() {
 
 }
 
-create_local_socket() {
+void create_local_socket() {
     local_socket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (local_socket == -1) {
         perror("error while creating local socket");
@@ -179,6 +225,7 @@ void listen_sockets() {
     }
 }
 
+
 void init_epoll() {
     efd = epoll_create1(0);
     if (efd == -1) {
@@ -201,45 +248,21 @@ void init_epoll() {
 
 }
 
-void work_forever() {
+void work() {
     while (run) {
-        printf("a");
+
         int n, i;
         n = epoll_wait(efd, events, MAXEVENTS, -1);
+
         for (i = 0; i < n; i++) {
 
-
-            if ((events[i].events & EPOLLERR) ||
-                (events[i].events & EPOLLHUP)) {
-                perror("epoll error");
+            if ((events[i].events & EPOLLERR) != 0 || (events[i].events & EPOLLHUP) != 0) {
+                perror("epoll error - client disconnected");
                 close_client(events[i].data.fd);
                 continue;
             } else if (events[i].data.fd == internet_socket || events[i].data.fd == local_socket) {
-                /* We have a notification on the listening socket, which
-                                means one or more incoming connections. */
-                while (1) {
-                    struct sockaddr in_addr;
-                    socklen_t in_len = sizeof(in_addr);
-                    int infd = accept(events[i].data.fd, &in_addr, &in_len);
-                    if (infd == -1) {
-                        if ((errno == EAGAIN) ||
-                            (errno == EWOULDBLOCK)) {
-                            /* We have processed all incoming
-                               connections. */
-                            break;
-                        } else {
-                            perror("accept");
-                            break;
-                        }
-                    }
-                    if (-1 == make_socket_non_blocking(infd)) {
-                        perror("error while making socket non blocking");
-                        exit(-1);
 
-                    }
-
-                    add_client(infd);
-                }
+                incoming_client_handler(i);
                 continue;
             } else {
                 /* We have data on the fd waiting to be read. Read and
@@ -247,40 +270,8 @@ void work_forever() {
              completely, as we are running in edge-triggered mode
              and won't get a notification again for the same
              data. */
-                int done = 0;
 
-                while (1) {
-                    ssize_t count;
-                    Message msg;
-                    count = read(events[i].data.fd, &msg, sizeof(msg));
-                    if (count == -1) {
-                        perror("error while reading");
-                        exit(-1);
-                    }
-                    if (count == 0) {
-                        perror("end, closing connection");
-                        close_client(events[i].data.fd);
-
-                    } else {
-                        switch (msg.m_t) {
-
-                            case TASK:
-                                break;
-                            case PING:
-                                break;
-                            case PONG:
-                                break;
-                            case HI:
-                                break;
-                            case BYE:
-                                break;
-                            case RESULT:
-                                printf("got result");
-                                break;
-                        }
-                    }
-
-                }
+                incoming_msg_handler(i);
             }
 
 
@@ -288,23 +279,121 @@ void work_forever() {
     }
 }
 
-void add_client(int infd) {
-    clients[CLIENTS++] = infd;
-    Message msg;
-    msg.m_t = HI;
-    strncpy(msg.name, "no czesc", MAX_NAME_LEN);
-    send(infd, &msg, sizeof(msg), 0);
+void incoming_msg_handler(int i) {
+    while (1) {
+        ssize_t count;
+        Message msg;
+        count = recv(events[i].data.fd, &msg, sizeof(msg), MSG_WAITALL);
+        if (count == -1) {
+            perror("error while reading");
+            close_client(events[i].data.fd);
+            //exit(-1);
+        }
+        if (count == 0) {
+            perror("end, closing connection");
+            close_client(events[i].data.fd);
 
+        } else {
+            switch (msg.m_t) {
+
+                case TASK:
+                    perror("task");
+                    break;
+                case PING:
+                    perror("ping");
+                    break;
+                case PONG:
+                    fprintf(stderr, "pong from %s\n", msg.name);
+                    break;
+                case HI:
+                    perror("hi");
+                    break;
+                case BYE:
+
+                    break;
+                case RESULT:
+                    fprintf(stdout, "\ngot result <%d>%d from %s\n", msg.task.task_id, msg.task.result, msg.name);
+
+                    break;
+            }
+        }
+        break;
+
+    }
 }
 
+void incoming_client_handler(int i) {
+
+
+    while (1) {
+
+        struct sockaddr in_addr;
+        socklen_t in_len = sizeof(in_addr);
+        int infd = accept(events[i].data.fd, &in_addr, &in_len);
+        if (infd == -1) {
+            if ((errno == EAGAIN) ||
+                (errno == EWOULDBLOCK)) {
+                /* We have processed all incoming
+                   connections. */
+                break;
+            } else {
+                perror("accept");
+                break;
+            }
+        }
+
+        if (-1 == make_socket_non_blocking(infd)) {
+            perror("error while making socket non blocking");
+            exit(-1);
+
+        }
+        Message msg;
+        msg.m_t = BYE;
+        if (-1 != recv(infd, &msg, sizeof(msg), MSG_WAITALL))
+            fprintf(stderr, "request from %s\n", msg.name);
+        if (CLIENTS >= MAX_CLIENTS) {
+            msg.m_t = BYE;
+            send(infd, &msg, sizeof(msg), MSG_WAITALL);
+            close(infd);
+            return;
+
+
+        } else {
+            int j = 0;
+            for (j = 0; j < CLIENTS; j++) {
+                if (strncmp(clients_name[j], msg.name, MAX_NAME_LEN) == 0) {
+                    msg.m_t = BYE;
+                    send(infd, &msg, sizeof(msg), MSG_WAITALL);
+                    close(infd);
+                    return;
+                }
+            }
+            msg.m_t = HI;
+            struct epoll_event lis_event;
+            lis_event.events = EPOLLIN | EPOLLET;
+            lis_event.data.fd = infd;
+            if (epoll_ctl(efd, EPOLL_CTL_ADD, infd, &lis_event) == -1) {
+                perror("failed to add incoming socket to epoll");
+                exit(1);
+            }
+            strncpy(clients_name[CLIENTS], msg.name, MAX_NAME_LEN - 1);
+            clients[CLIENTS++] = infd;
+            fprintf(stderr, "added %s at no %d", msg.name, CLIENTS - 1);
+
+        }
+
+
+    }
+}
+
+
 void *network_job(void *arg) {
-    printf("created thread");
     create_internet_socket();
     create_local_socket();
     make_sockets_non_blocking();
     listen_sockets();
     init_epoll();
-    work_forever();
+    work();
 
 
 }
@@ -312,6 +401,11 @@ void *network_job(void *arg) {
 void delegate(Task *task) {
     int worker;
     pthread_mutex_lock(&clients_array_mutex);
+    if (CLIENTS == 0) {
+        fprintf(stderr, "no clients!\n");
+        pthread_mutex_unlock(&clients_array_mutex);
+        return;
+    }
     worker = clients[rand() % CLIENTS];
     pthread_mutex_unlock(&clients_array_mutex);
     Message msg;
@@ -324,7 +418,9 @@ void delegate(Task *task) {
 void create_msg(Message *msg, Task *task, enum message_type t) {
     msg->task.operand1 = task->operand1;
     msg->task.operand2 = task->operand2;
+    msg->task.op = task->op;
     msg->m_t = t;
+    msg->task.task_id = task->task_id;
 }
 
 char *stringify_task(Task task, char *str) {
@@ -383,10 +479,6 @@ void create_task(Task *task, char bfr[50]) {
 
 }
 
-void clean_up() {
-    return;
-}
-
 void parse_args(int argc, char *pString[], in_port_t *port, char *path) {
     if (argc != 3) {
         printf("usage: server TCP_PORT UNIX_PATH\n");
@@ -403,38 +495,3 @@ void parse_args(int argc, char *pString[], in_port_t *port, char *path) {
 
 };
 
-
-void initialize_server() {
-    int socket_d = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (socket_d == -1) {
-        perror("socket error");
-        exit(-1);
-    } else {
-        socket_desc = socket_d;
-        struct sockaddr_in addr, client;
-        addr.sin_family = AF_INET;
-        addr.sin_addr.s_addr = INADDR_ANY;
-        addr.sin_port = htons(8888);
-        if (bind(socket_desc, (struct sockaddr *) &addr, sizeof(addr))) {
-            perror("bind fail");
-            exit(-1);
-        };
-        puts("bind succes");
-        if (listen(socket_desc, 3)) {
-            perror("listen fail");
-            exit(-1);
-        };
-
-        puts("listen succes");
-        c = sizeof(struct sockaddr_in);
-        puts("waiting for connection..");
-        client_socket = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
-        if (client_socket < 0) {
-            perror("accept failed");
-            exit(-1);
-        }
-        puts("client connected");
-    }
-
-}
